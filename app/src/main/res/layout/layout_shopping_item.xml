@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_salon"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="4dp"
+    app:cardBackgroundColor="@android:color/white"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        >
+        
+        <ImageView
+            android:id="@+id/img_shopping_item"
+            android:src="@drawable/ic_image_black_24dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+
+        <TextView
+            android:id="@+id/txt_name_shopping_item"
+            android:text="Hair Style Wax"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/bellerose"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            
+            <TextView
+                android:id="@+id/txt_price_shopping_item"
+                android:text="$20"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/background_dark"
+                android:fontFamily="@font/bellerose"
+                android:gravity="left"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/txt_add_to_cart"
+                android:text="  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/background_dark"
+                android:fontFamily="@font/bellerose"
+                android:gravity="center_horizontal"
+                android:drawableRight="@drawable/ic_shopping_cart_black_24dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

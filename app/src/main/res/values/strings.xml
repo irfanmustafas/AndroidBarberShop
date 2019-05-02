@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">AndroidBarberBooking</string>
+    <string name="FACEBOOK_APP_ID">788712754843049</string>
+    <string name="ACCOUNT_KIT_CLIENT_TOKEN">051db478d89db38b6563422aacc3ffc7</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="address_bullet">\u2022 Address:</string>
+    <string name="time_bullet">\u2022 Time:</string>
+    <string name="stylelist_bullet">\u2022 Stylelist:</string>
+    <string name="bullet">\u2022</string>
+</resources>
