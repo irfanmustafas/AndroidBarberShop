@@ -21,10 +21,10 @@ import ydkim2110.com.androidbarberbooking.R;
 
 public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHolder> {
 
-    Context mContext;
-    List<Salon> salonList;
-    List<CardView> cardViewList;
-    LocalBroadcastManager mLocalBroadcastManager;
+    private Context mContext;
+    private List<Salon> salonList;
+    private List<CardView> cardViewList;
+    private LocalBroadcastManager mLocalBroadcastManager;
 
     public MySalonAdapter(Context context, List<Salon> salonList) {
         mContext = context;
@@ -79,8 +79,10 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView txt_salon_name, txt_salon_address;
-        CardView card_salon;
+
+        private TextView txt_salon_name;
+        private TextView txt_salon_address;
+        private CardView card_salon;
 
         IRecyclerItemSelectedListener iRecyclerItemSelectedListener;
 

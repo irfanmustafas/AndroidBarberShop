@@ -17,12 +17,14 @@ import ydkim2110.com.androidbarberbooking.R;
 
 public class LookbookAdapter extends RecyclerView.Adapter<LookbookAdapter.MyViewHolder> {
 
-    Context mContext;
-    List<Banner> lookbook;
+    private static final String TAG = LookbookAdapter.class.getSimpleName();
+
+    private Context mContext;
+    private List<Banner> mLookbook;
 
     public LookbookAdapter(Context context, List<Banner> lookbook) {
         mContext = context;
-        this.lookbook = lookbook;
+        this.mLookbook = lookbook;
     }
 
     @NonNull
@@ -35,17 +37,17 @@ public class LookbookAdapter extends RecyclerView.Adapter<LookbookAdapter.MyView
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        Picasso.get().load(lookbook.get(position).getImage()).into(holder.mImageView);
+        Picasso.get().load(mLookbook.get(position).getImage()).into(holder.mImageView);
     }
 
     @Override
     public int getItemCount() {
-        return lookbook.size();
+        return mLookbook.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView mImageView;
+        private ImageView mImageView;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);

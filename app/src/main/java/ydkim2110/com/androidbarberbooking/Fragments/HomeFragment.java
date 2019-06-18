@@ -2,6 +2,7 @@ package ydkim2110.com.androidbarberbooking.Fragments;
 
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -68,9 +69,11 @@ import ydkim2110.com.androidbarberbooking.Service.PicassoImageLoadingService;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeFragment extends Fragment implements ILookbookLoadListener, IBannerLoadListener, IBookingInfoLoadListener, IBookingInformationChangeListener, ICountItemInCartListener {
+public class HomeFragment extends Fragment
+        implements ILookbookLoadListener, IBannerLoadListener, IBookingInfoLoadListener,
+        IBookingInformationChangeListener, ICountItemInCartListener {
 
-    private static final String TAG = "HomeFragment";
+    private static final String TAG = HomeFragment.class.getSimpleName();
 
     private Unbinder unbinder;
 
@@ -82,6 +85,8 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     LinearLayout layout_user_information;
     @BindView(R.id.txt_user_name)
     TextView txt_user_name;
+    @BindView(R.id.txt_member_type)
+    TextView txt_member_type;
     @BindView(R.id.banner_slider)
     Slider banner_slider;
     @BindView(R.id.recycler_look_book)
@@ -242,8 +247,10 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
         }
     }
 
+    // Firestore
     CollectionReference bannerRef, lookbookRef;
 
+    // Interface
     IBannerLoadListener iBannerLoadListener;
     ILookbookLoadListener iLookbookLoadListener;
     IBookingInfoLoadListener mIBookingInfoLoadListener;
@@ -319,19 +326,21 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_home, container, false);
-
         unbinder = ButterKnife.bind(this, view);
 
         mCartDatabase = CartDatabase.getInstance(getContext());
 
+        // Init
         Slider.init(new PicassoImageLoadingService());
         iBannerLoadListener = this;
         iLookbookLoadListener = this;
         mIBookingInfoLoadListener = this;
         mIBookingInformationChangeListener = this;
 
+        // Check is logged?
         if (AccountKit.getCurrentAccessToken() != null) {
             setUserInformation();
             loadBanner();
@@ -350,6 +359,7 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     }
 
     private void loadLookbook() {
+        Log.d(TAG, "loadLookbook: called!!");
         lookbookRef.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -373,6 +383,7 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     }
 
     private void loadBanner() {
+        Log.d(TAG, "loadBanner: called!!");
         bannerRef.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -402,6 +413,7 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
 
     @Override
     public void onLookbookLoadSuccess(List<Banner> banners) {
+        Log.d(TAG, "onLookbookLoadSuccess: called!!");
         recycler_look_book.setHasFixedSize(true);
         recycler_look_book.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycler_look_book.setAdapter(new LookbookAdapter(getActivity(), banners));
@@ -409,16 +421,19 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
 
     @Override
     public void onLookbookLoadFailed(String message) {
+        Log.d(TAG, "onLookbookLoadFailed: called!!");
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onBannerLoadSuccess(List<Banner> banners) {
+        Log.d(TAG, "onBannerLoadSuccess: called!!");
         banner_slider.setAdapter(new HomeSliderAdapter(banners));
     }
 
     @Override
     public void onBannerLoadFailed(String message) {
+        Log.d(TAG, "onBannerLoadFailed: called!!");
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 

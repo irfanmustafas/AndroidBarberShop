@@ -29,9 +29,9 @@ import ydkim2110.com.androidbarberbooking.R;
 
 public class BookingStep2Fragment extends Fragment {
 
-    private static final String TAG = "BookingStep2Fragment";
+    private static final String TAG = BookingStep2Fragment.class.getSimpleName();
 
-    static BookingStep2Fragment instance;
+    private static BookingStep2Fragment instance;
 
     public static BookingStep2Fragment getInstance() {
         if (instance == null) {

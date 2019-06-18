@@ -38,7 +38,7 @@ import java.util.List;
 
 public class BookingActivity extends AppCompatActivity {
 
-    private static final String TAG = "BookingActivity";
+    private static final String TAG = BookingActivity.class.getSimpleName();
 
     LocalBroadcastManager mLocalBroadcastManager;
     AlertDialog mDialog;
@@ -67,8 +67,6 @@ public class BookingActivity extends AppCompatActivity {
     }
     @OnClick(R.id.btn_next_step)
     void nextClick() {
-//        Toast.makeText(this, ""+Common.currentSalon.getSalonId(),
-//                Toast.LENGTH_SHORT).show();
         if (Common.step < 3 || Common.step == 0) {
             Common.step++; // increase
             if (Common.step == 1) { // After choose salon
@@ -203,7 +201,6 @@ public class BookingActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-
                 // Show step
                 stepView.go(position, true);
 
@@ -235,13 +232,15 @@ public class BookingActivity extends AppCompatActivity {
 
         if (btn_next_step.isEnabled()) {
             btn_next_step.setBackgroundResource(R.color.colorButton);
-        } else {
+        }
+        else {
             btn_next_step.setBackgroundResource(android.R.color.darker_gray);
         }
 
         if (btn_previous_step.isEnabled()) {
             btn_previous_step.setBackgroundResource(R.color.colorButton);
-        } else {
+        }
+        else {
             btn_previous_step.setBackgroundResource(android.R.color.darker_gray);
         }
     }
@@ -250,10 +249,10 @@ public class BookingActivity extends AppCompatActivity {
         Log.d(TAG, "setupStepView: called");
 
         List<String> stepList = new ArrayList<>();
-        stepList.add("Salon");
-        stepList.add("Barber");
-        stepList.add("Time");
-        stepList.add("Confirm");
+        stepList.add("미용실");
+        stepList.add("미용사");
+        stepList.add("예약시간");
+        stepList.add("예약확인");
         stepView.setSteps(stepList);
     }
 }

@@ -6,11 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/my_bg"
+    android:padding="8dp"
     tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/txt_skip"
-        android:text="Just Skip"
+        android:text="@string/just_skip"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:textSize="30sp"
@@ -21,12 +22,12 @@
 
     <Button
         android:id="@+id/btn_login"
-        android:text="Login"
+        android:backgroundTint="@color/colorButton"
+        android:text="@string/login"
         android:textColor="@android:color/white"
         android:textSize="22sp"
         android:fontFamily="@font/bellerose"
         android:layout_above="@id/txt_skip"
-        android:background="@color/colorButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

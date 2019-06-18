@@ -16,16 +16,13 @@
         android:padding="16dp"
         app:sv_animationType="None"
         app:sv_stepPadding="12dp"
-
         app:sv_selectedCircleColor="@color/colorButton"
         app:sv_selectedStepNumberColor="@android:color/white"
         app:sv_selectedTextColor="@color/colorButton"
-
         app:sv_doneCircleColor="@color/colorAccent"
         app:sv_doneStepLineColor="@color/colorAccent"
         app:sv_doneTextColor="@android:color/white"
         app:sv_doneStepMarkColor="@android:color/white"
-
         app:sv_typeface="@font/bellerose"
         />
 
@@ -49,28 +46,28 @@
 
         <Button
             android:id="@+id/btn_previous_step"
-            android:text="Previous"
             android:enabled="false"
-            android:fontFamily="@font/bellerose"
+            android:backgroundTint="@color/colorButton"
+            android:text="Previous"
             android:textColor="@android:color/white"
+            android:fontFamily="@font/bellerose"
             android:layout_centerHorizontal="true"
             android:layout_marginEnd="4dp"
             android:layout_above="@+id/txt_skip"
-            android:background="@color/colorButton"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/btn_next_step"
-            android:text="Next"
             android:enabled="false"
-            android:fontFamily="@font/bellerose"
+            android:backgroundTint="@color/colorButton"
+            android:text="Next"
             android:textColor="@android:color/white"
+            android:fontFamily="@font/bellerose"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="4dp"
             android:layout_above="@+id/txt_skip"
-            android:background="@color/colorButton"
+            android:layout_marginStart="4dp"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content" />

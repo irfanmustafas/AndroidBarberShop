@@ -38,16 +38,18 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int APP_REQUEST_CODE = 711;
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    private static final int APP_REQUEST_CODE = 711; //Any Number you want
 
     @BindView(R.id.btn_login)
     Button btn_login;
-
     @BindView(R.id.txt_skip)
     TextView txt_skip;
 
     @OnClick(R.id.btn_login)
     void loginUser() {
+        Log.d(TAG, "loginUser: called!!");
         final Intent intent = new Intent(this, AccountKitActivity.class);
         AccountKitConfiguration.AccountKitConfigurationBuilder configurationBuilder =
                 new AccountKitConfiguration.AccountKitConfigurationBuilder(LoginType.PHONE,
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.txt_skip)
     void skipLoginJustGoHome() {
+        Log.d(TAG, "skipLoginJustGoHome: called!!");
         Intent intent = new Intent(this, HomeActivity.class);
         intent.putExtra(Common.IS_LOGIN, false);
         startActivity(intent);
@@ -66,13 +69,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: called!!");
         if (requestCode == APP_REQUEST_CODE) {
             AccountKitLoginResult loginResult = data.getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
             if (loginResult.getError() != null) {
-                Toast.makeText(this, ""+loginResult.getError().getErrorType().getMessage(), Toast.LENGTH_SHORT).show();
-            } else if (loginResult.wasCancelled()) {
-                Toast.makeText(this, "Login Cancelled!", Toast.LENGTH_SHORT).show();
-            } else {
+                Toast.makeText(this, ""+loginResult.getError().getErrorType().getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+            else if (loginResult.wasCancelled()) {
+                Toast.makeText(this, "Login Cancelled!",
+                        Toast.LENGTH_SHORT).show();
+            }
+            else {
                 Intent intent = new Intent(this, HomeActivity.class);
                 intent.putExtra(Common.IS_LOGIN, true);
                 startActivity(intent);
@@ -84,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: started!!");
 
         Dexter.withActivity(this)
                 .withPermissions(new String[]{
@@ -94,13 +103,15 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         AccessToken accessToken = AccountKit.getCurrentAccessToken();
-                        if (accessToken != null) { // If already loggin
-                            Intent intent = new Intent(MainActivity
-                                    .this, HomeActivity.class);
+                        // If already logged
+                        if (accessToken != null) {
+                            Intent intent = new Intent(MainActivity.this,
+                                    HomeActivity.class);
                             intent.putExtra(Common.IS_LOGIN, true);
                             startActivity(intent);
                             finish();
-                        } else {
+                        }
+                        else {
                             setContentView(R.layout.activity_main);
                             ButterKnife.bind(MainActivity.this);
                         }

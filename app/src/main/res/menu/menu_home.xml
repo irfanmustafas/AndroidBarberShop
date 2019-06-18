@@ -3,9 +3,9 @@
     <item
         android:id="@+id/action_home"
         android:icon="@drawable/ic_home_24dp"
-        android:title="Home" />
+        android:title="@string/home" />
     <item
         android:id="@+id/action_shopping"
         android:icon="@drawable/ic_shopping_cart_24dp"
-        android:title="Shopping" />
+        android:title="@string/shopping" />
 </menu>

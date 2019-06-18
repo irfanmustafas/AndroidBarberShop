@@ -8,19 +8,21 @@ import ydkim2110.com.androidbarberbooking.Model.Banner;
 
 public class HomeSliderAdapter extends SliderAdapter {
 
-    List<Banner> bannerList;
+    private static final String TAG = HomeSliderAdapter.class.getSimpleName();
+
+    List<Banner> mBannerList;
 
     public HomeSliderAdapter(List<Banner> bannerList) {
-        this.bannerList = bannerList;
+        this.mBannerList = bannerList;
     }
 
     @Override
     public int getItemCount() {
-        return bannerList.size();
+        return mBannerList.size();
     }
 
     @Override
     public void onBindImageSlide(int position, ImageSlideViewHolder imageSlideViewHolder) {
-        imageSlideViewHolder.bindImageSlide(bannerList.get(position).getImage());
+        imageSlideViewHolder.bindImageSlide(mBannerList.get(position).getImage());
     }
 }

@@ -1,7 +1,5 @@
 package ydkim2110.com.androidbarberbooking.Common;
 
-import android.os.Parcelable;
-
 import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
@@ -14,6 +12,7 @@ import ydkim2110.com.androidbarberbooking.Model.Salon;
 import ydkim2110.com.androidbarberbooking.Model.User;
 
 public class Common {
+
     public static final String KEY_ENABLE_BUTTON_NEXT = "ENABLE_BUTTON_NEXT";
     public static final String KEY_SALON_STORE = "SALON_STORE";
     public static final String KEY_BARBER_LOAD_DONE = "BARBER_LOAD_DONE";

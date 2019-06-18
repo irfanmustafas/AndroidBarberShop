@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:background="@color/colorBackground"
     android:padding="8dp"
@@ -13,7 +14,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edt_name"
-            android:hint="Your Name"
+            android:hint="@string/your_name"
             android:inputType="text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -26,7 +27,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edt_address"
-            android:hint="Your Address"
+            android:hint="@string/your_address"
             android:inputType="text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -35,13 +36,14 @@
 
     <Button
         android:id="@+id/btn_update"
-        android:text="Update"
+        android:text="@string/update"
         android:textColor="@android:color/white"
         android:textSize="22sp"
         android:fontFamily="monospace"
         android:layout_above="@id/txt_skip"
-        android:background="@color/colorButton"
+        android:backgroundTint="@color/colorButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        tools:ignore="ObsoleteLayoutParam" />
 
 </LinearLayout>

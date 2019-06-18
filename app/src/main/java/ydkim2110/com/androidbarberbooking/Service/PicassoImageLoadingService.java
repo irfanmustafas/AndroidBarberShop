@@ -1,9 +1,7 @@
 package ydkim2110.com.androidbarberbooking.Service;
 
 import android.widget.ImageView;
-
 import com.squareup.picasso.Picasso;
-
 import ss.com.bannerslider.ImageLoadingService;
 
 public class PicassoImageLoadingService implements ImageLoadingService {

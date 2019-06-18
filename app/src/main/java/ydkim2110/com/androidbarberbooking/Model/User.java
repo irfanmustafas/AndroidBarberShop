@@ -2,7 +2,9 @@ package ydkim2110.com.androidbarberbooking.Model;
 
 public class User {
 
-    private String name, address, phoneNumber;
+    private String name;
+    private String address;
+    private String phoneNumber;
 
     public User() {
     }

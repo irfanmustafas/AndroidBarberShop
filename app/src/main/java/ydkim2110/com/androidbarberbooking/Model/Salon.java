@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Salon implements Parcelable {
+
     private String name, address, website, phone, openHours, salonId;
 
     public Salon() {

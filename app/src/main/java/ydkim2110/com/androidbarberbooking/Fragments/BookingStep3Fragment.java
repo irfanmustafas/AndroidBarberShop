@@ -49,9 +49,9 @@ import ydkim2110.com.androidbarberbooking.R;
 
 public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListener {
 
-    private static final String TAG = "BookingStep3Fragment";
+    private static final String TAG = BookingStep3Fragment.class.getSimpleName();
 
-    static BookingStep3Fragment instance;
+    private static BookingStep3Fragment instance;
 
     public static BookingStep3Fragment getInstance() {
         if (instance == null) {
