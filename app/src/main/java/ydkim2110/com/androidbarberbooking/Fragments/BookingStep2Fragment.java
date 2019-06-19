@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -45,15 +46,25 @@ public class BookingStep2Fragment extends Fragment {
 
     @BindView(R.id.recycler_barber)
     RecyclerView recycler_barber;
+    @BindView(R.id.no_item)
+    TextView no_item;
 
+    // we need listen broadcast(from bookactivity) and set recycler view
     private BroadcastReceiver barberDoneReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "onReceive: Step2 BroadcastReceiver called!!");
             ArrayList<Barber> barberArrayList = intent.getParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE);
-            // Create adapter late
-            MyBarberAdapter adapter = new MyBarberAdapter(getContext(), barberArrayList);
-            recycler_barber.setAdapter(adapter);
+            // Create adapter
+            if (barberArrayList.size() == 0) {
+                no_item.setVisibility(View.VISIBLE);
+                recycler_barber.setVisibility(View.GONE);
+            } else {
+                no_item.setVisibility(View.GONE);
+                recycler_barber.setVisibility(View.VISIBLE);
+                MyBarberAdapter adapter = new MyBarberAdapter(getContext(), barberArrayList);
+                recycler_barber.setAdapter(adapter);
+            }
         }
     };
 

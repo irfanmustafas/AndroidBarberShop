@@ -82,7 +82,7 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
         // No add card already in carViewList
         holder.setIRecyclerItemSelectedListener(new IRecyclerItemSelectedListener() {
             @Override
-            public void onItemSelectedListener(View view, int position) {
+            public void onItemSelected(View view, int position) {
                 // Loop all card in card list
                 for (CardView cardView : mCardViewList) {
                     if (cardView.getTag() == null) { // Only available card time slot be change
@@ -130,7 +130,7 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
 
         @Override
         public void onClick(View v) {
-            mIRecyclerItemSelectedListener.onItemSelectedListener(v, getAdapterPosition());
+            mIRecyclerItemSelectedListener.onItemSelected(v, getAdapterPosition());
         }
     }
 }

@@ -2,7 +2,6 @@ package ydkim2110.com.androidbarberbooking.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,12 +22,12 @@ import ydkim2110.com.androidbarberbooking.R;
 
 public class MyBarberAdapter extends RecyclerView.Adapter<MyBarberAdapter.MyViewHolder> {
 
-    private static final String TAG = "MyBarberAdapter";
+    private static final String TAG = MyBarberAdapter.class.getSimpleName();
 
-    Context mContext;
-    List<Barber> mBarberList;
-    List<CardView> mCardViewList;
-    LocalBroadcastManager mLocalBroadcastManager;
+    private Context mContext;
+    private List<Barber> mBarberList;
+    private List<CardView> mCardViewList;
+    private LocalBroadcastManager mLocalBroadcastManager;
 
     public MyBarberAdapter(Context context, List<Barber> barberList) {
         mContext = context;
@@ -57,7 +56,7 @@ public class MyBarberAdapter extends RecyclerView.Adapter<MyBarberAdapter.MyView
 
         holder.setIRecyclerItemSelectedListener(new IRecyclerItemSelectedListener() {
             @Override
-            public void onItemSelectedListener(View view, int position) {
+            public void onItemSelected(View view, int position) {
                 // Set Background for all item not choice
                 for (CardView cardView : mCardViewList) {
                     cardView.setCardBackgroundColor(mContext.getResources()
@@ -83,9 +82,10 @@ public class MyBarberAdapter extends RecyclerView.Adapter<MyBarberAdapter.MyView
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView txt_barber_name;
-        RatingBar ratingBar;
-        CardView card_barber;
+
+        private TextView txt_barber_name;
+        private RatingBar ratingBar;
+        private CardView card_barber;
 
         IRecyclerItemSelectedListener mIRecyclerItemSelectedListener;
 
@@ -105,7 +105,7 @@ public class MyBarberAdapter extends RecyclerView.Adapter<MyBarberAdapter.MyView
 
         @Override
         public void onClick(View v) {
-            mIRecyclerItemSelectedListener.onItemSelectedListener(v, getAdapterPosition());
+            mIRecyclerItemSelectedListener.onItemSelected(v, getAdapterPosition());
         }
     }
 }

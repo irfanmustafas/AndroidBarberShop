@@ -2,6 +2,7 @@ package ydkim2110.com.androidbarberbooking;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 import butterknife.BindView;
@@ -59,22 +60,28 @@ public class BookingActivity extends AppCompatActivity {
         if (Common.step == 3 || Common.step >0) {
             Common.step--;
             viewPager.setCurrentItem(Common.step);
-            if (Common.step < 3) { // Always enable NEXT when Step <3
+            // Always enable NEXT when Step <3
+            if (Common.step < 3) {
                 btn_next_step.setEnabled(true);
                 setColorButton();
             }
         }
     }
+
     @OnClick(R.id.btn_next_step)
     void nextClick() {
         if (Common.step < 3 || Common.step == 0) {
-            Common.step++; // increase
-            if (Common.step == 1) { // After choose salon
+            // increase
+            Common.step++;
+
+            // After choose salon
+            if (Common.step == 1) {
                 if (Common.currentSalon != null) {
                     loadBarberBySalon(Common.currentSalon.getSalonId());
                 }
             }
-            else if (Common.step == 2) { // Pick time slot
+            // Pick time slot
+            else if (Common.step == 2) {
                 if (Common.currentBarber != null) {
                     loadTimeSlotOfBarber(Common.currentBarber.getBarberId());
                 }
@@ -89,69 +96,7 @@ public class BookingActivity extends AppCompatActivity {
         }
     }
 
-    private void confirmBooking() {
-        // /send broadcast to fragment step four
-        Intent intent = new Intent(Common.KEY_CONFIRM_BOOKING);
-        mLocalBroadcastManager.sendBroadcast(intent);
-    }
-
-    private void loadTimeSlotOfBarber(String barberId) {
-        Log.d(TAG, "loadTimeSlotOfBarber: called!!");
-
-        // Send Local Broadcast to Fragment step3
-        Intent intent = new Intent(Common.KEY_DISPLAY_TIME_SLOT);
-        mLocalBroadcastManager.sendBroadcast(intent);
-    }
-
-    private void loadBarberBySalon(String salonId) {
-        Log.d(TAG, "loadBarberBySalon: called!!");
-
-        mDialog.show();
-        Log.d(TAG, "loadBarberBySalon: Common city: " + Common.city);
-
-        // Now, select all barber of Salon
-        // /AllSalon/염창동/Branch/GFcWv2DSzLUFpTmTk1bI/Barber/TOpQSyDh45DDJNDyD5rY
-        if (!TextUtils.isEmpty(Common.city)) {
-            barberRef = FirebaseFirestore.getInstance()
-                    .collection("AllSalon")
-                    .document(Common.city)
-                    .collection("Branch")
-                    .document(salonId)
-                    .collection("Barber");
-
-            barberRef.get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            ArrayList<Barber> barbers = new ArrayList<>();
-                            for (QueryDocumentSnapshot barberSnapshot : task.getResult()) {
-                                Barber barber = barberSnapshot.toObject(Barber.class);
-                                barber.setPassword(""); // Remove password because in client app
-                                barber.setBarberId(barberSnapshot.getId());
-
-                                barbers.add(barber);
-                            }
-
-                            Log.d(TAG, "onComplete: Barbers Size: " + barbers.size());
-
-                            // Send Broadcast to BookingStep2Fragment to load Recycler
-                            Intent intent = new Intent(Common.KEY_BARBER_LOAD_DONE);
-                            intent.putParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE, barbers);
-                            mLocalBroadcastManager.sendBroadcast(intent);
-
-                            mDialog.dismiss();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            mDialog.dismiss();
-                        }
-                    });
-        }
-    }
-
-    // Broadcast Receiver
+    // Broadcast Receiver (To listen)
     private BroadcastReceiver buttonNextReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -171,6 +116,13 @@ public class BookingActivity extends AppCompatActivity {
         }
     };
 
+    private BroadcastReceiver clearButtonNextReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "onReceive: called!!");
+            btn_next_step.setEnabled(false);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,9 +134,12 @@ public class BookingActivity extends AppCompatActivity {
 
         mDialog = new SpotsDialog.Builder().setContext(this).build();
 
+        // Register Listener
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
         mLocalBroadcastManager.registerReceiver(buttonNextReceiver,
                 new IntentFilter(Common.KEY_ENABLE_BUTTON_NEXT));
+        mLocalBroadcastManager.registerReceiver(clearButtonNextReceiver,
+                new IntentFilter(Common.KEY_UNABLE_BUTTON_NEXT));
 
         setupStepView();
         setColorButton();
@@ -223,8 +178,74 @@ public class BookingActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG, "onDestroy: called!!");
+        Common.step = 0;
         mLocalBroadcastManager.unregisterReceiver(buttonNextReceiver);
+        mLocalBroadcastManager.unregisterReceiver(clearButtonNextReceiver);
         super.onDestroy();
+    }
+
+
+    private void confirmBooking() {
+        // /send broadcast to fragment step four
+        Intent intent = new Intent(Common.KEY_CONFIRM_BOOKING);
+        mLocalBroadcastManager.sendBroadcast(intent);
+    }
+
+    private void loadTimeSlotOfBarber(String barberId) {
+        Log.d(TAG, "loadTimeSlotOfBarber: called!!");
+
+        // Send Local Broadcast to Fragment step3
+        Intent intent = new Intent(Common.KEY_DISPLAY_TIME_SLOT);
+        mLocalBroadcastManager.sendBroadcast(intent);
+    }
+
+    private void loadBarberBySalon(String salonId) {
+        Log.d(TAG, "loadBarberBySalon: called!!");
+
+        mDialog.show();
+        Log.d(TAG, "loadBarberBySalon: Common city: " + Common.city);
+
+        // Now, select all barber of Salon
+        // /AllSalon/NewYork/Branch/2QkgoRWoPoH7KMlsAbVK/Barber
+        if (!TextUtils.isEmpty(Common.city)) {
+            barberRef = FirebaseFirestore.getInstance()
+                    .collection("AllSalon")
+                    .document(Common.city)
+                    .collection("Branch")
+                    .document(salonId)
+                    .collection("Barber");
+
+            barberRef.get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            ArrayList<Barber> barbers = new ArrayList<>();
+                            for (QueryDocumentSnapshot barberSnapshot : task.getResult()) {
+                                Barber barber = barberSnapshot.toObject(Barber.class);
+                                barber.setPassword(""); // Remove password because in client app
+                                barber.setBarberId(barberSnapshot.getId());
+
+                                barbers.add(barber);
+                            }
+
+                            Log.d(TAG, "onComplete: Barbers Size: " + barbers.size());
+
+                            // Send Broadcast to BookingStep2Fragment to load Recycler
+                            Intent intent = new Intent(Common.KEY_BARBER_LOAD_DONE);
+                            intent.putParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE, barbers);
+                            mLocalBroadcastManager.sendBroadcast(intent);
+
+                            mDialog.dismiss();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            mDialog.dismiss();
+                        }
+                    });
+        }
     }
 
     private void setColorButton() {

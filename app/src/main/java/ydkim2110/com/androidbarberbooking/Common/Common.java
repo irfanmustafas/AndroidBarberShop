@@ -14,6 +14,7 @@ import ydkim2110.com.androidbarberbooking.Model.User;
 public class Common {
 
     public static final String KEY_ENABLE_BUTTON_NEXT = "ENABLE_BUTTON_NEXT";
+    public static final String KEY_UNABLE_BUTTON_NEXT = "UNABLE_BUTTON_NEXT";
     public static final String KEY_SALON_STORE = "SALON_STORE";
     public static final String KEY_BARBER_LOAD_DONE = "BARBER_LOAD_DONE";
     public static final String KEY_DISPLAY_TIME_SLOT = "DISPLAY_TIME_SLOT";

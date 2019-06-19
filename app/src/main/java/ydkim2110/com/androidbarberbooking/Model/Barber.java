@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Barber implements Parcelable {
+
     private String name, username, password, barberId;
     private Long rating;
 

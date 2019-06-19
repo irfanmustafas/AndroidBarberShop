@@ -51,9 +51,9 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
             cardViewList.add(holder.card_salon);
         }
 
-        holder.setiRecyclerItemSelectedListener(new IRecyclerItemSelectedListener() {
+        holder.setIRecyclerItemSelectedListener(new IRecyclerItemSelectedListener() {
             @Override
-            public void onItemSelectedListener(View view, int position) {
+            public void onItemSelected(View view, int position) {
                 // Set white background for all card not be selected
                 for (CardView cardView : cardViewList) {
                     cardView.setCardBackgroundColor(mContext.getResources()
@@ -66,8 +66,12 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
 
                 // Send Broadcast to tell Booking Activity enable Button next
                 Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
-                intent.putExtra(Common.KEY_SALON_STORE, salonList.get(position));
+                // We need send Salon Object to intent, so we must implement Parcelable for Salon Object
+                // And we need add more property "salonId" to select all barber of this salon
+                // Because we just add 'salonId', so we need set it when user load all salon
+                // salonId is just our property, so it can't be parse from Firestore, need set it by manually
                 intent.putExtra(Common.KEY_STEP, 1);
+                intent.putExtra(Common.KEY_SALON_STORE, salonList.get(position));
                 mLocalBroadcastManager.sendBroadcast(intent);
             }
         });
@@ -84,10 +88,10 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
         private TextView txt_salon_address;
         private CardView card_salon;
 
-        IRecyclerItemSelectedListener iRecyclerItemSelectedListener;
+        private IRecyclerItemSelectedListener mIRecyclerItemSelectedListener;
 
-        public void setiRecyclerItemSelectedListener(IRecyclerItemSelectedListener iRecyclerItemSelectedListener) {
-            this.iRecyclerItemSelectedListener = iRecyclerItemSelectedListener;
+        public void setIRecyclerItemSelectedListener(IRecyclerItemSelectedListener IRecyclerItemSelectedListener) {
+            this.mIRecyclerItemSelectedListener = IRecyclerItemSelectedListener;
         }
 
         public MyViewHolder(@NonNull View itemView) {
@@ -102,7 +106,7 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
 
         @Override
         public void onClick(View v) {
-            iRecyclerItemSelectedListener.onItemSelectedListener(v, getAdapterPosition());
+            mIRecyclerItemSelectedListener.onItemSelected(v, getAdapterPosition());
         }
     }
 }

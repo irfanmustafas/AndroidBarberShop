@@ -14,19 +14,18 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/txt_salon_name"
+            android:id="@+id/txt_barber_image"
             android:src="@drawable/ic_account_circle_black_24dp"
             android:nextFocusForward="@font/bellerose"
             android:layout_gravity="center_horizontal"
             android:layout_width="90dp"
-            android:layout_height="90dp"
-            />
+            android:layout_height="90dp" />
 
         <TextView
             android:id="@+id/txt_barber_name"
-            android:text="김용대"
+            android:text="David"
             android:textSize="20sp"
-            android:textStyle="italic"
+            android:textStyle="bold"
             android:fontFamily="@font/bellerose"
             android:gravity="center_horizontal"
             android:layout_width="match_parent"

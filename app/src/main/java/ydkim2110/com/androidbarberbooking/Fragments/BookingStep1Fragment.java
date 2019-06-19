@@ -1,6 +1,7 @@
 package ydkim2110.com.androidbarberbooking.Fragments;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -42,6 +44,7 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
 
     private static final String TAG = BookingStep1Fragment.class.getSimpleName();
 
+    private LocalBroadcastManager mLocalBroadcastManager;
     // Variable
     CollectionReference allSalonRef;
     CollectionReference branchRef;
@@ -79,6 +82,8 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
         iBranchLoadListener = this;
 
         dialog = new SpotsDialog.Builder().setContext(getActivity()).build();
+
+        mLocalBroadcastManager = LocalBroadcastManager.getInstance(getContext());
     }
 
     @Nullable
@@ -133,13 +138,22 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
         spinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
+                Log.d(TAG, "onItemSelected: position: "+position);
                 if (position > 0) {
+                    makeNextBtnEnableFalse();
                     loadBranchOfCity(item.toString());
                 } else {
+                    makeNextBtnEnableFalse();
                     recycler_salon.setVisibility(View.GONE);
                 }
             }
         });
+    }
+
+    private void makeNextBtnEnableFalse() {
+        Log.d(TAG, "makeNextBtnEnableFalse: called!!");
+        Intent intent = new Intent(Common.KEY_UNABLE_BUTTON_NEXT);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
@@ -166,6 +180,7 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
                                 Salon salon = documentSnapshot.toObject(Salon.class);
+                                // add salonId
                                 salon.setSalonId(documentSnapshot.getId());
                                 list.add(salon);
                             }

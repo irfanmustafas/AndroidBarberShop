@@ -55,7 +55,7 @@ public class MyShoppingItemAdapter extends RecyclerView.Adapter<MyShoppingItemAd
         // Add to cart
         holder.setIRecyclerItemSelectedListener(new IRecyclerItemSelectedListener() {
             @Override
-            public void onItemSelectedListener(View view, int position) {
+            public void onItemSelected(View view, int position) {
                 // Create cart Item
                 CartItem cartItem = new CartItem();
                 cartItem.setProductId(mShoppingItemList.get(position).getId());
@@ -101,7 +101,7 @@ public class MyShoppingItemAdapter extends RecyclerView.Adapter<MyShoppingItemAd
 
         @Override
         public void onClick(View v) {
-            mIRecyclerItemSelectedListener.onItemSelectedListener(v, getAdapterPosition());
+            mIRecyclerItemSelectedListener.onItemSelected(v, getAdapterPosition());
         }
     }
 }
