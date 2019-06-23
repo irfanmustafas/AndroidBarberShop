@@ -25,17 +25,18 @@ public class Common {
     public static final String KEY_TIME_SLOT = "TIME_SLOT";
     public static final String KEY_CONFIRM_BOOKING = "CONFIRM_BOOKING";
     public static final String EVENT_URI_CACHE = "URI_EVENT_SAVE";
-    public static String IS_LOGIN = "IsLogin";
     public static User currentUser;
     public static Salon currentSalon;
     public static Barber currentBarber;
     public static BookingInformation currentBooking;
     public static int currentTimeSlot=-1;
     public static int step = 0;
+    public static String IS_LOGIN = "IsLogin";
     public static String city = "";
+    public static String currentBookingId = "";
+
     public static Calendar bookingDate = Calendar.getInstance();
     public static SimpleDateFormat simpleFormatDate = new SimpleDateFormat("dd_MM_yyyy");
-    public static String currentBookingId = "";
 
     public static String convertTimeSlotToString(int position) {
         switch (position) {

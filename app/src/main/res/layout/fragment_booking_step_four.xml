@@ -7,10 +7,10 @@
     android:background="@color/colorBackground">
 
     <ImageView
+        android:src="@drawable/logo"
         android:layout_width="wrap_content"
         android:layout_height="200dp"
-        android:src="@drawable/logo"
-        android:layout_gravity="center"
+        android:layout_gravity="center_horizontal"
         />
 
     <LinearLayout
@@ -191,7 +191,7 @@
             android:layout_marginTop="8dp"
             android:textColor="@android:color/white"
             android:fontFamily="@font/bellerose"
-            android:background="@color/colorButton"
+            android:backgroundTint="@color/colorButton"
             android:layout_centerHorizontal="true"
             android:layout_above="@+id/txt_skip"
             android:layout_width="match_parent"

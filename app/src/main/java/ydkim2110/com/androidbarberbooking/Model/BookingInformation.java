@@ -3,7 +3,7 @@ package ydkim2110.com.androidbarberbooking.Model;
 import com.google.firebase.Timestamp;
 
 public class BookingInformation {
-    private String cityBook, customerName, customerPhone, time, barbarId, barberName, salonId, salonName, salonAddress;
+    private String cityBook, customerName, customerPhone, time, barberId, barberName, salonId, salonName, salonAddress;
     private Long slot;
     private Timestamp timestamp;
     private Boolean done;
@@ -16,7 +16,7 @@ public class BookingInformation {
         this.customerName = customerName;
         this.customerPhone = customerPhone;
         this.time = time;
-        this.barbarId = barbarId;
+        this.barberId = barbarId;
         this.barberName = barberName;
         this.salonId = salonId;
         this.salonName = salonName;
@@ -50,12 +50,12 @@ public class BookingInformation {
         this.time = time;
     }
 
-    public String getBarbarId() {
-        return barbarId;
+    public String getBarberId() {
+        return barberId;
     }
 
-    public void setBarbarId(String barbarId) {
-        this.barbarId = barbarId;
+    public void setBarberId(String barberId) {
+        this.barberId = barberId;
     }
 
     public String getBarberName() {

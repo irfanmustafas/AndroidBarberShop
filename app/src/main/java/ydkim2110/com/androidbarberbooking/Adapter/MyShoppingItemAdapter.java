@@ -24,10 +24,12 @@ import ydkim2110.com.androidbarberbooking.R;
 
 public class MyShoppingItemAdapter extends RecyclerView.Adapter<MyShoppingItemAdapter.MyViewHolder> {
 
-    Context mContext;
-    List<ShoppingItem> mShoppingItemList;
+    private static final String TAG = MyShoppingItemAdapter.class.getSimpleName();
 
-    CartDatabase mCartDatabase;
+    private Context mContext;
+    private List<ShoppingItem> mShoppingItemList;
+
+    private CartDatabase mCartDatabase;
 
     public MyShoppingItemAdapter(Context context, List<ShoppingItem> shoppingItemList) {
         mContext = context;
@@ -79,10 +81,12 @@ public class MyShoppingItemAdapter extends RecyclerView.Adapter<MyShoppingItemAd
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView txt_shopping_item_name, txt_shopping_item_price, txt_add_to_cart;
-        ImageView img_shopping_item;
+        private TextView txt_shopping_item_name;
+        private TextView txt_shopping_item_price;
+        private TextView txt_add_to_cart;
+        private ImageView img_shopping_item;
 
-        IRecyclerItemSelectedListener mIRecyclerItemSelectedListener;
+        private IRecyclerItemSelectedListener mIRecyclerItemSelectedListener;
 
         public void setIRecyclerItemSelectedListener(IRecyclerItemSelectedListener IRecyclerItemSelectedListener) {
             mIRecyclerItemSelectedListener = IRecyclerItemSelectedListener;

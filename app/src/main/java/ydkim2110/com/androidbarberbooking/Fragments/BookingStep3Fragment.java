@@ -33,6 +33,7 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -64,6 +65,8 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
     ITimeSlotLoadListener mITimeSlotLoadListener;
     AlertDialog mDialog;
 
+    Calendar selected_date;
+
     Unbinder mUnbinder;
     LocalBroadcastManager mLocalBroadcastManager;
 
@@ -78,7 +81,7 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
         public void onReceive(Context context, Intent intent) {
             Calendar date = Calendar.getInstance();
             date.add(Calendar.DATE, 0);
-            loadAvailableTimeSlotOfBarber(Common.currentBarber.getBarberId(), 
+            loadAvailableTimeSlotOfBarber(Common.currentBarber.getBarberId(),
                     mSimpleDateFormat.format(date.getTime()));
         }
     };
@@ -96,51 +99,57 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
                 .collection("Barber")
                 .document(Common.currentBarber.getBarberId());
 
-        barberDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.exists()) {
-                        // Get information of booking
-                        // If not created, return empty;
-                        CollectionReference date = FirebaseFirestore.getInstance()
-                                .collection("AllSalon")
-                                .document(Common.city)
-                                .collection("Branch")
-                                .document(Common.currentSalon.getSalonId())
-                                .collection("Barber")
-                                .document(Common.currentBarber.getBarberId())
-                                .collection(bookDate);
+        // Get information of this barber
+        barberDoc.get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot documentSnapshot = task.getResult();
+                            // If barber available
+                            if (documentSnapshot.exists()) {
+                                // Get information of booking
+                                // If not created, return empty;
+                                CollectionReference date = FirebaseFirestore.getInstance()
+                                        .collection("AllSalon")
+                                        .document(Common.city)
+                                        .collection("Branch")
+                                        .document(Common.currentSalon.getSalonId())
+                                        .collection("Barber")
+                                        .document(Common.currentBarber.getBarberId())
+                                        // bookDate is date simpleformat with dd_MM_yyyy = 28_03_2019
+                                        .collection(bookDate);
 
-                        date.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    QuerySnapshot querySnapshot = task.getResult();
-                                    if (querySnapshot.isEmpty()) {
-                                        mITimeSlotLoadListener.onTimeSlotLoadEmpty();
-                                    } else {
-                                        List<TimeSlot> timeSlots = new ArrayList<>();
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            timeSlots.add(document.toObject(TimeSlot.class));
-                                        }
-                                        mITimeSlotLoadListener.onTimeSlotLoadSuccess(timeSlots);
+                                date.get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    QuerySnapshot querySnapshot = task.getResult();
+                                                    // If don't have any appointment
+                                                    if (querySnapshot.isEmpty()) {
+                                                        mITimeSlotLoadListener.onTimeSlotLoadEmpty();
+                                                    }
+                                                    // If have appointment
+                                                    else {
+                                                        List<TimeSlot> timeSlots = new ArrayList<>();
+                                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                                            timeSlots.add(document.toObject(TimeSlot.class));
+                                                        }
+                                                        mITimeSlotLoadListener.onTimeSlotLoadSuccess(timeSlots);
+                                                    }
+                                                }
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        mITimeSlotLoadListener.onTimeSlotLoadFailed(e.getMessage());
                                     }
-                                }
+                                });
                             }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                mITimeSlotLoadListener.onTimeSlotLoadFailed(e.getMessage());
-                            }
-                        });
+                        }
                     }
-                }
-            }
-        });
-
-
+                });
     }
 
     @Override
@@ -148,13 +157,18 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
         super.onCreate(savedInstanceState);
 
         mITimeSlotLoadListener = this;
+
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(getContext());
         mLocalBroadcastManager.registerReceiver(displayTimeSlot, new IntentFilter(Common.KEY_DISPLAY_TIME_SLOT));
 
+        // 28_03)2019 (this is key)
         mSimpleDateFormat = new SimpleDateFormat("dd_MM_yyyy");
 
         mDialog = new SpotsDialog.Builder().setContext(getContext()).setCancelable(false).build();
 
+        selected_date = Calendar.getInstance();
+        // Init current date
+        selected_date.add(Calendar.DATE, 0);
     }
 
     @Override
@@ -168,8 +182,8 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        View view =  inflater.inflate(R.layout.fragment_booking_step_three,
-                container,false);
+        View view = inflater.inflate(R.layout.fragment_booking_step_three,
+                container, false);
 
         mUnbinder = ButterKnife.bind(this, view);
 
@@ -179,6 +193,8 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
     }
 
     private void initView(View view) {
+        Log.d(TAG, "initView: called!!");
+
         recycler_time_slot.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
         recycler_time_slot.setLayoutManager(gridLayoutManager);
@@ -189,7 +205,8 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
         startDate.add(Calendar.DATE, 0);
 
         Calendar endDate = Calendar.getInstance();
-        endDate.add(Calendar.DATE, 2); // 2 day left
+        // 2 day left
+        endDate.add(Calendar.DATE, 2);
 
         HorizontalCalendar horizontalCalendar = new HorizontalCalendar.Builder(view, R.id.calendarView)
                 .range(startDate, endDate)
@@ -202,9 +219,10 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
             @Override
             public void onDateSelected(Calendar date, int position) {
                 if (Common.bookingDate.getTimeInMillis() != date.getTimeInMillis()) {
-                    Common.bookingDate = date; // This cod will not load again if you select new day same with day selected
+                    // This code will not load again if you select new day same with day selected
+                    Common.bookingDate = date;
                     loadAvailableTimeSlotOfBarber(Common.currentBarber.getBarberId(),
-                            mSimpleDateFormat.format(date.getTime())) ;
+                            mSimpleDateFormat.format(date.getTime()));
                 }
             }
         });
@@ -213,7 +231,6 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
     @Override
     public void onTimeSlotLoadSuccess(List<TimeSlot> timeSlotList) {
         Log.d(TAG, "onTimeSlotLoadSuccess: called!!");
-
         MyTimeSlotAdapter adapter = new MyTimeSlotAdapter(getContext(), timeSlotList);
         recycler_time_slot.setAdapter(adapter);
 
@@ -222,12 +239,14 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
 
     @Override
     public void onTimeSlotLoadFailed(String message) {
+        Log.d(TAG, "onTimeSlotLoadFailed: called!!");
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
         mDialog.dismiss();
     }
 
     @Override
     public void onTimeSlotLoadEmpty() {
+        Log.d(TAG, "onTimeSlotLoadEmpty: called!!");
         MyTimeSlotAdapter adapter = new MyTimeSlotAdapter(getContext());
         recycler_time_slot.setAdapter(adapter);
 

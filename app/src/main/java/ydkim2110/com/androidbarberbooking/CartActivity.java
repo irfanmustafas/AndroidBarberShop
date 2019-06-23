@@ -32,7 +32,7 @@ public class CartActivity extends AppCompatActivity implements ICartItemLoadLite
     @BindView(R.id.btn_submit_cart)
     Button btn_submit_cart;
 
-    CartDatabase mCartDatabase;
+    private CartDatabase mCartDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,6 @@ public class CartActivity extends AppCompatActivity implements ICartItemLoadLite
     @Override
     public void onGetAllItemFromCartSuccess(List<CartItem> cartItemList) {
         Log.d(TAG, "onGetAllItemFromCartSuccess: called!!");
-
         // Here, after we get all cart item from DB
         // We will display by Recycler View
         MyCartAdapter adapter = new MyCartAdapter(this, cartItemList, this);
@@ -65,7 +64,6 @@ public class CartActivity extends AppCompatActivity implements ICartItemLoadLite
 
     @Override
     public void onCartItemUpdateSuccess() {
-
         Log.d(TAG, "onCartItemUpdateSuccess: called!!");
         DatabaseUtils.sumCart(mCartDatabase, this);
     }
@@ -73,7 +71,6 @@ public class CartActivity extends AppCompatActivity implements ICartItemLoadLite
     @Override
     public void onSumCartSuccess(long value) {
         Log.d(TAG, "onSumCartSuccess: called!!");
-
         txt_total_price.setText(new StringBuilder("$").append(value));
     }
 }

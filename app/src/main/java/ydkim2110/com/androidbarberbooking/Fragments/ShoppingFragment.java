@@ -1,5 +1,6 @@
 package ydkim2110.com.androidbarberbooking.Fragments;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import dmax.dialog.SpotsDialog;
 import ydkim2110.com.androidbarberbooking.Adapter.MyShoppingItemAdapter;
 import ydkim2110.com.androidbarberbooking.Common.SpaceItemDecoration;
 import ydkim2110.com.androidbarberbooking.Interface.IShoppingDataLoadListener;
@@ -38,10 +41,12 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
 
     private static final String TAG = "ShoppingFragment";
 
-    Unbinder mUnbinder;
-    CollectionReference shoppingItemRef;
+    private Unbinder mUnbinder;
+    private CollectionReference shoppingItemRef;
 
-    IShoppingDataLoadListener mIShoppingDataLoadListener;
+    private IShoppingDataLoadListener mIShoppingDataLoadListener;
+
+    private AlertDialog mDialog;
 
     @BindView(R.id.chip_group)
     ChipGroup chipGroup;
@@ -52,7 +57,6 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
         setSelectedChip(chip_wax);
         loadShoppingItem("Wax");
     }
-
     @BindView(R.id.chip_spray)
     Chip chip_spray;
     @OnClick(R.id.chip_spray)
@@ -60,7 +64,6 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
         setSelectedChip(chip_spray);
         loadShoppingItem("Spray");
     }
-
     @BindView(R.id.chip_hair_care)
     Chip chip_hair_care;
     @OnClick(R.id.chip_hair_care)
@@ -68,7 +71,6 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
         setSelectedChip(chip_hair_care);
         loadShoppingItem("HairCare");
     }
-
     @BindView(R.id.chip_body_care)
     Chip chip_body_care;
     @OnClick(R.id.chip_body_care)
@@ -83,6 +85,8 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
     private void loadShoppingItem(String itemMenu) {
         Log.d(TAG, "loadShoppingItem: called!!");
 
+        mDialog.show();
+
         shoppingItemRef = FirebaseFirestore.getInstance()
                 .collection("Shopping")
                 .document(itemMenu)
@@ -93,6 +97,7 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        mDialog.dismiss();
                         mIShoppingDataLoadListener.onShoppingDataLoadFailed(e.getMessage());
                     }
                 })
@@ -103,10 +108,12 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
                             List<ShoppingItem> shoppingItems = new ArrayList<>();
                             for (DocumentSnapshot itemSnapshot : task.getResult()) {
                                 ShoppingItem shoppingItem = itemSnapshot.toObject(ShoppingItem.class);
-                                shoppingItem.setId(itemSnapshot.getId()); // Remember add it if you don't want to get null!!
+                                // Remember add it if you don't want to get null!!
+                                shoppingItem.setId(itemSnapshot.getId());
                                 shoppingItems.add(shoppingItem);
                             }
                             mIShoppingDataLoadListener.onShoppingDataLoadSuccess(shoppingItems);
+                            mDialog.dismiss();
                         }
                     }
                 });
@@ -120,10 +127,13 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
             Chip chipItem = (Chip) chipGroup.getChildAt(i);
             Log.d(TAG, "setSelectedChip: chip.getId(): "+chip.getId());
             Log.d(TAG, "setSelectedChip: chipItem.getId(): "+chipItem.getId());
-            if (chipItem.getId() != chip.getId()) { // If not selected
+            // If not selected
+            if (chipItem.getId() != chip.getId()) {
                 chipItem.setChipBackgroundColorResource(android.R.color.darker_gray);
                 chipItem.setTextColor(getResources().getColor(android.R.color.white));
-            } else { // If selected
+            }
+            // If selected
+            else {
                 chipItem.setChipBackgroundColorResource(android.R.color.holo_orange_dark);
                 chipItem.setTextColor(getResources().getColor(android.R.color.black));
             }
@@ -134,6 +144,12 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mDialog = new SpotsDialog.Builder().setContext(getContext()).setCancelable(false).build();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -155,7 +171,6 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
 
     private void initView() {
         Log.d(TAG, "initView: called!!");
-
         recycler_item.setHasFixedSize(true);
         recycler_item.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recycler_item.addItemDecoration(new SpaceItemDecoration(8));
@@ -164,7 +179,6 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
     @Override
     public void onShoppingDataLoadSuccess(List<ShoppingItem> shoppingItemList) {
         Log.d(TAG, "onShoppingDataLoadSuccess: called!!");
-
         MyShoppingItemAdapter adapter = new MyShoppingItemAdapter(getContext(), shoppingItemList);
         recycler_item.setAdapter(adapter);
     }
@@ -172,8 +186,6 @@ public class ShoppingFragment extends Fragment implements IShoppingDataLoadListe
     @Override
     public void onShoppingDataLoadFailed(String message) {
         Log.d(TAG, "onShoppingDataLoadFailed: called!!");
-
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-
     }
 }

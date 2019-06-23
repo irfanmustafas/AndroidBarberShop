@@ -21,13 +21,15 @@ import ydkim2110.com.androidbarberbooking.R;
 
 public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.MyViewHolder> {
 
-    Context mContext;
-    List<TimeSlot> mTimeSlotList;
-    List<CardView> mCardViewList;
-    LocalBroadcastManager mLocalBroadcastManager;
+    private static final String TAG = MyTimeSlotAdapter.class.getSimpleName();
+
+    private Context mContext;
+    private List<TimeSlot> mTimeSlotList;
+    private List<CardView> mCardViewList;
+    private LocalBroadcastManager mLocalBroadcastManager;
 
     public MyTimeSlotAdapter(Context context) {
-        mContext = context;
+        this.mContext = context;
         this.mTimeSlotList = new ArrayList<>();
         this.mCardViewList = new ArrayList<>();
         this.mLocalBroadcastManager = LocalBroadcastManager.getInstance(context);
@@ -45,30 +47,34 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.layout_time_slot, parent, false);
-
         return new MyViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.txt_time_slot.setText(new StringBuilder(Common.convertTimeSlotToString(position)).toString());
-        if (mTimeSlotList.size() == 0) { // If all position is availabe, just show list
+        // If all position is available, just show list
+        if (mTimeSlotList.size() == 0) {
             holder.card_time_slot.setCardBackgroundColor(mContext.getResources().getColor(android.R.color.white));
             holder.txt_time_slot_description.setText("Available!");
             holder.txt_time_slot_description.setTextColor(mContext.getResources().getColor(android.R.color.black));
             holder.txt_time_slot.setTextColor(mContext.getResources().getColor(android.R.color.black));
-        } else { // If have position is full (booked)
+        }
+        // If have position is full (booked)
+        else {
             for (TimeSlot slotValue : mTimeSlotList) {
                 // Loop all time slot from server and set different color
                 int slot = Integer.parseInt(slotValue.getSlot().toString());
-                if (slot == position) { // IF slot == position
+                // IF slot == position
+                if (slot == position) {
                     // we will set tag for all time slot is full
                     // so base on tag, we can set all remain card background without change full time slot
                     holder.card_time_slot.setTag(Common.DISABLE_TAG);
                     holder.card_time_slot.setCardBackgroundColor(mContext.getResources().getColor(android.R.color.darker_gray));
-                    holder.txt_time_slot_description.setText("Full!");
+                    holder.txt_time_slot_description.setText("Full");
                     holder.txt_time_slot_description.setTextColor(mContext.getResources().getColor(android.R.color.black));
                     holder.txt_time_slot.setTextColor(mContext.getResources().getColor(android.R.color.black));
+                    holder.card_time_slot.setClickable(false);
                 }
             }
         }
@@ -80,27 +86,32 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
 
         // Check if card time slot is available
         // No add card already in carViewList
-        holder.setIRecyclerItemSelectedListener(new IRecyclerItemSelectedListener() {
-            @Override
-            public void onItemSelected(View view, int position) {
-                // Loop all card in card list
-                for (CardView cardView : mCardViewList) {
-                    if (cardView.getTag() == null) { // Only available card time slot be change
-                        cardView.setCardBackgroundColor(mContext.getResources()
-                        .getColor(android.R.color.white));
+        if (!mTimeSlotList.contains(position)) {
+            holder.setIRecyclerItemSelectedListener(new IRecyclerItemSelectedListener() {
+                @Override
+                public void onItemSelected(View view, int position) {
+                    // Loop all card in card list
+                    for (CardView cardView : mCardViewList) {
+                        // Only available card time slot be change
+                        if (cardView.getTag() == null) {
+                            cardView.setCardBackgroundColor(mContext.getResources()
+                                    .getColor(android.R.color.white));
+                        }
                     }
-                }
-                // Our selected card will be change color
-                holder.card_time_slot.setCardBackgroundColor(mContext.getResources()
-                .getColor(android.R.color.holo_orange_dark));
+                    // Our selected card will be change color
+                    holder.card_time_slot.setCardBackgroundColor(mContext.getResources()
+                            .getColor(android.R.color.holo_orange_dark));
 
-                // After that, send broadcast to enable button next
-                Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
-                intent.putExtra(Common.KEY_TIME_SLOT, position); // Put index of time slot we have selected
-                intent.putExtra(Common.KEY_STEP, 3); // Go to step3
-                mLocalBroadcastManager.sendBroadcast(intent);
-            }
-        });
+                    // After that, send broadcast to enable button next
+                    Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
+                    // Put index of time slot we have selected
+                    intent.putExtra(Common.KEY_TIME_SLOT, position);
+                    // Go to step3
+                    intent.putExtra(Common.KEY_STEP, 3);
+                    mLocalBroadcastManager.sendBroadcast(intent);
+                }
+            });
+        }
     }
 
     @Override
@@ -109,12 +120,13 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView txt_time_slot, txt_time_slot_description;
-        CardView card_time_slot;
 
-        IRecyclerItemSelectedListener mIRecyclerItemSelectedListener;
+        private TextView txt_time_slot, txt_time_slot_description;
+        private CardView card_time_slot;
 
-        public void setIRecyclerItemSelectedListener(IRecyclerItemSelectedListener IRecyclerItemSelectedListener) {
+        private IRecyclerItemSelectedListener mIRecyclerItemSelectedListener;
+
+        private void setIRecyclerItemSelectedListener(IRecyclerItemSelectedListener IRecyclerItemSelectedListener) {
             mIRecyclerItemSelectedListener = IRecyclerItemSelectedListener;
         }
 

@@ -2,9 +2,9 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_time_slot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/card_time_slot"
     app:cardCornerRadius="4dp">
 
     <LinearLayout
@@ -29,10 +29,9 @@
             android:textSize="14sp"
             android:textStyle="italic"
             android:fontFamily="@font/bellerose"
-            android:gravity="center"
+            android:gravity="center_horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
 
     </LinearLayout>
 

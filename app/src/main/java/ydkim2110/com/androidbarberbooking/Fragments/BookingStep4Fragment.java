@@ -62,10 +62,10 @@ public class BookingStep4Fragment extends Fragment {
         return instance;
     }
 
-    SimpleDateFormat mSimpleDateFormat;
-    LocalBroadcastManager mLocalBroadcastManager;
+    private SimpleDateFormat mSimpleDateFormat;
+    private LocalBroadcastManager mLocalBroadcastManager;
 
-    AlertDialog mDialog;
+    private AlertDialog mDialog;
 
     @BindView(R.id.txt_booking_barber_text)
     TextView txt_booking_barber_text;
@@ -81,9 +81,9 @@ public class BookingStep4Fragment extends Fragment {
     TextView txt_salon_phone;
     @BindView(R.id.txt_salon_website)
     TextView txt_salon_website;
+
     @OnClick(R.id.btn_confirm)
     void confirmBooking() {
-
         mDialog.show();
 
         // Process TimeStamp
@@ -91,25 +91,27 @@ public class BookingStep4Fragment extends Fragment {
         // For only display all future booking
         String startTime = Common.convertTimeSlotToString(Common.currentTimeSlot);
         String[] convertTime = startTime.split("~");
+
         String[] startTimeConvert = convertTime[0].split(":");
         int startHourInt = Integer.parseInt(startTimeConvert[0].trim());
         int startMinInt = Integer.parseInt(startTimeConvert[1].trim());
 
-        Calendar bookingdateWithoutHours = Calendar.getInstance();
-        bookingdateWithoutHours.setTimeInMillis(Common.bookingDate.getTimeInMillis());
-        bookingdateWithoutHours.set(Calendar.HOUR_OF_DAY, startHourInt);
-        bookingdateWithoutHours.set(Calendar.MINUTE, startMinInt);
+        Calendar bookingDateWithoutHours = Calendar.getInstance();
+        bookingDateWithoutHours.setTimeInMillis(Common.bookingDate.getTimeInMillis());
+        bookingDateWithoutHours.set(Calendar.HOUR_OF_DAY, startHourInt);
+        bookingDateWithoutHours.set(Calendar.MINUTE, startMinInt);
 
         // Create timestamp object and apply to BookingInformation
-        Timestamp timestamp = new Timestamp(bookingdateWithoutHours.getTime());
-
-        BookingInformation bookingInformation = new BookingInformation();
+        Timestamp timestamp = new Timestamp(bookingDateWithoutHours.getTime());
 
         // creating booking information
+        BookingInformation bookingInformation = new BookingInformation();
+
         bookingInformation.setCityBook(Common.city);
         bookingInformation.setTimestamp(timestamp);
-        bookingInformation.setDone(false); // Always false, because we will use this field to filter for display
-        bookingInformation.setBarbarId(Common.currentBarber.getBarberId());
+        // Always false, because we will use this field to filter for display
+        bookingInformation.setDone(false);
+        bookingInformation.setBarberId(Common.currentBarber.getBarberId());
         bookingInformation.setBarberName(Common.currentBarber.getName());
         bookingInformation.setCustomerName(Common.currentUser.getName());
         bookingInformation.setCustomerPhone(Common.currentUser.getPhoneNumber());
@@ -118,7 +120,7 @@ public class BookingStep4Fragment extends Fragment {
         bookingInformation.setSalonName(Common.currentSalon.getName());
         bookingInformation.setTime(new StringBuilder(Common.convertTimeSlotToString(Common.currentTimeSlot))
                 .append(" at ")
-                .append(mSimpleDateFormat.format(bookingdateWithoutHours.getTime())).toString());
+                .append(mSimpleDateFormat.format(bookingDateWithoutHours.getTime())).toString());
         bookingInformation.setSlot(Long.valueOf(Common.currentTimeSlot));
 
         // submit barber document
@@ -139,7 +141,6 @@ public class BookingStep4Fragment extends Fragment {
                     public void onSuccess(Void aVoid) {
                         // Here we can write an function to check
                         // If already exist an booking, we will prevent new booking
-
                         addToUserBooking(bookingInformation);
                     }
                 })
@@ -161,16 +162,15 @@ public class BookingStep4Fragment extends Fragment {
                 .document(Common.currentUser.getPhoneNumber())
                 .collection("Booking");
 
-        // Check if exist document in this collection
-
         // Get current date
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, 0);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
-
         Timestamp todayTimestamp = new Timestamp(calendar.getTime());
 
+        // Check if exist document in this collection
+        // if have any document with field done = false;
         userBooking
                 .whereGreaterThanOrEqualTo("timestamp", todayTimestamp)
                 .whereEqualTo("done", false)
@@ -187,14 +187,13 @@ public class BookingStep4Fragment extends Fragment {
                                         @Override
                                         public void onSuccess(Void aVoid) {
 
-
                                             if (mDialog.isShowing())
                                                 mDialog.dismiss();
 
                                             addToCalendar(Common.bookingDate, Common.convertTimeSlotToString(Common.currentTimeSlot));
                                             resetStaticData();
-                                            getActivity().finish(); // close activity
-
+                                            // close activity
+                                            getActivity().finish();
                                             Toast.makeText(getContext(), "Success!",
                                                     Toast.LENGTH_SHORT).show();
                                         }
@@ -202,6 +201,9 @@ public class BookingStep4Fragment extends Fragment {
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
+                                            if (mDialog.isShowing())
+                                                mDialog.dismiss();
+
                                             Toast.makeText(getContext(), e.getMessage(),
                                                     Toast.LENGTH_SHORT).show();
                                         }
@@ -211,8 +213,8 @@ public class BookingStep4Fragment extends Fragment {
                                 mDialog.dismiss();
 
                             resetStaticData();
-                            getActivity().finish(); // close activity
-
+                            // close activity
+                            getActivity().finish();
                             Toast.makeText(getContext(), "Success!",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -225,6 +227,7 @@ public class BookingStep4Fragment extends Fragment {
 
         String startTime = Common.convertTimeSlotToString(Common.currentTimeSlot);
         String[] convertTime = startTime.split("~");
+
         String[] startTimeConvert = convertTime[0].split(":");
         int startHourInt = Integer.parseInt(startTimeConvert[0].trim());
         int startMinInt = Integer.parseInt(startTimeConvert[1].trim());
@@ -243,6 +246,7 @@ public class BookingStep4Fragment extends Fragment {
         endEvent.set(Calendar.HOUR_OF_DAY, endHourInt); // Set event start hour
         endEvent.set(Calendar.MINUTE, endMinInt); // Set event start min
 
+        // After we have startEvent and endEvent, convert, convert it to format String
         SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         String startEventTime = calendarDateFormat.format(startEvent.getTime());
         String endEventTime = calendarDateFormat.format(endEvent.getTime());
@@ -300,7 +304,7 @@ public class BookingStep4Fragment extends Fragment {
     }
 
     private String getCalendar(Context context) {
-        Log.d(TAG, "getCalendar: called!");
+        Log.d(TAG, "getCalendar: called!!");
 
         // Get default calendar ID of Calendar of Gmail
         String gmailIdCalendar = "";
@@ -342,12 +346,12 @@ public class BookingStep4Fragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "onReceive: called!!");
-
             setData();
         }
     };
 
     private void setData() {
+        Log.d(TAG, "setData: called!!");
         txt_booking_barber_text.setText(Common.currentBarber.getName());
         txt_booking_time_text.setText(new StringBuilder(Common.convertTimeSlotToString(Common.currentTimeSlot))
         .append(" at ")
@@ -363,6 +367,7 @@ public class BookingStep4Fragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: started!!");
 
         // Ally format for date display on confirm
         mSimpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -383,14 +388,10 @@ public class BookingStep4Fragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-
+        Log.d(TAG, "onCreate: started!!");
         View view =  inflater.inflate(R.layout.fragment_booking_step_four, container,false);
-
         mUnbinder = ButterKnife.bind(this, view);
-
         return view;
-
-
     }
 
 }

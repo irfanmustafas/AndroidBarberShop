@@ -21,16 +21,21 @@ import ydkim2110.com.androidbarberbooking.R;
 
 public class MyCartAdapter extends RecyclerView.Adapter<MyCartAdapter.MyViewHolder> {
 
-    Context mContext;
-    List<CartItem> mCartItemList;
-    CartDatabase mCartDatabase;
-    ICartItemUpdateListener mICartItemUpdateListener;
+    private static final String TAG = MyCartAdapter.class.getSimpleName();
+
+    interface  IImageButtonListener {
+        void onImageButtonListener(View view, int position, boolean isDecrease);
+    }
+
+    private Context mContext;
+    private List<CartItem> mCartItemList;
+    private CartDatabase mCartDatabase;
+    private ICartItemUpdateListener mICartItemUpdateListener;
 
     public MyCartAdapter(Context context, List<CartItem> cartItemList, ICartItemUpdateListener ICartItemUpdateListener) {
         mContext = context;
         mCartItemList = cartItemList;
         mICartItemUpdateListener = ICartItemUpdateListener;
-
         this.mCartDatabase = CartDatabase.getInstance(context);
 
         mICartItemUpdateListener.onCartItemUpdateSuccess();
@@ -50,15 +55,9 @@ public class MyCartAdapter extends RecyclerView.Adapter<MyCartAdapter.MyViewHold
                 .load(mCartItemList.get(position).getProductImage())
                 .into(holder.img_product);
 
-        holder.txt_cart_name.setText(
-                new StringBuilder(mCartItemList.get(position).getProductName())
-        );
-        holder.txt_cart_price.setText(
-                new StringBuilder("$").append(mCartItemList.get(position).getProductPrice())
-        );
-        holder.txt_quantity.setText(
-                new StringBuilder(String.valueOf(mCartItemList.get(position).getProductQuantity()))
-        );
+        holder.txt_cart_name.setText(new StringBuilder(mCartItemList.get(position).getProductName()));
+        holder.txt_cart_price.setText(new StringBuilder("$").append(mCartItemList.get(position).getProductPrice()));
+        holder.txt_quantity.setText(new StringBuilder(String.valueOf(mCartItemList.get(position).getProductQuantity())));
 
         // Event
         holder.setListener(new IImageButtonListener() {
@@ -95,16 +94,16 @@ public class MyCartAdapter extends RecyclerView.Adapter<MyCartAdapter.MyViewHold
         return mCartItemList.size();
     }
 
-    interface  IImageButtonListener {
-        void onImageButtonListener(View view, int position, boolean isDecrease);
-    }
-
     public class MyViewHolder  extends RecyclerView.ViewHolder{
 
-        TextView txt_cart_name, txt_cart_price, txt_quantity;
-        ImageView img_decrease, img_increase, img_product;
+        private TextView txt_cart_name;
+        private TextView txt_cart_price;
+        private TextView txt_quantity;
+        private ImageView img_decrease;
+        private ImageView img_increase;
+        private ImageView img_product;
 
-        IImageButtonListener mListener;
+        private IImageButtonListener mListener;
 
         public void setListener(IImageButtonListener listener) {
             mListener = listener;

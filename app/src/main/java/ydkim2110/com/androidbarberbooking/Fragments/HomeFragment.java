@@ -2,7 +2,6 @@ package ydkim2110.com.androidbarberbooking.Fragments;
 
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -77,9 +76,9 @@ public class HomeFragment extends Fragment
 
     private Unbinder unbinder;
 
-    AlertDialog mDialog;
+    private AlertDialog mDialog;
 
-    CartDatabase mCartDatabase;
+    private CartDatabase mCartDatabase;
 
     @BindView(R.id.layout_user_information)
     LinearLayout layout_user_information;
@@ -168,9 +167,10 @@ public class HomeFragment extends Fragment
                     .collection("Branch")
                     .document(Common.currentBooking.getSalonId())
                     .collection("Barber")
-                    .document(Common.currentBooking.getBarbarId())
+                    .document(Common.currentBooking.getBarberId())
                     .collection(Common.convertTimeSlotToStringKey(Common.currentBooking.getTimestamp()))
                     .document(Common.currentBooking.getSlot().toString());
+
             // When we have document, just delete it.
             barberBookingInfo
                     .delete()
@@ -233,14 +233,12 @@ public class HomeFragment extends Fragment
                                 mIBookingInformationChangeListener.onBookingInformationChange();
                             }
 
-                            if (mDialog.isShowing())
-                                mDialog.dismiss();
+                            mDialog.dismiss();
                         }
                     });
 
         } else {
-            if (mDialog.isShowing())
-                mDialog.dismiss();
+            mDialog.dismiss();
 
             Toast.makeText(getContext(), "Booking Information ID  must not be empty",
                     Toast.LENGTH_SHORT).show();
@@ -303,10 +301,8 @@ public class HomeFragment extends Fragment
                         if (task.isSuccessful()) {
                             if (!task.getResult().isEmpty()) {
                                 for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
-                                    BookingInformation bookingInformation = queryDocumentSnapshot.toObject(BookingInformation.class
-                                    );
-                                    mIBookingInfoLoadListener.onBookingInfoLoadSuccess(bookingInformation,
-                                            queryDocumentSnapshot.getId());
+                                    BookingInformation bookingInformation = queryDocumentSnapshot.toObject(BookingInformation.class);
+                                    mIBookingInfoLoadListener.onBookingInfoLoadSuccess(bookingInformation, queryDocumentSnapshot.getId());
                                     break;
                                 }
                             } else {
@@ -459,8 +455,7 @@ public class HomeFragment extends Fragment
 
         card_booking_info.setVisibility(View.VISIBLE);
 
-        if (mDialog.isShowing())
-            mDialog.dismiss();
+        mDialog.dismiss();
     }
 
     @Override
@@ -471,14 +466,18 @@ public class HomeFragment extends Fragment
     @Override
     public void onBookingInformationChange() {
         Log.d(TAG, "onBookingInformationChange: called");
-
+        // Here we will just start activity Booking
         startActivity(new Intent(getActivity(), BookingActivity.class));
     }
 
     @Override
     public void onCartItemCountSuccess(int count) {
         Log.d(TAG, "onCartItemCountSuccess: called!!");
-
-        notification_badge.setText(String.valueOf(count));
+        if (count == 0) {
+            notification_badge.setVisibility(View.GONE);
+        } else {
+            notification_badge.setVisibility(View.VISIBLE);
+            notification_badge.setText(String.valueOf(count));
+        }
     }
 }

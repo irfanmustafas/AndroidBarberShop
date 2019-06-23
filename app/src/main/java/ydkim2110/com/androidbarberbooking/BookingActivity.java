@@ -35,6 +35,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.shuhart.stepview.StepView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class BookingActivity extends AppCompatActivity {
@@ -60,6 +61,7 @@ public class BookingActivity extends AppCompatActivity {
         if (Common.step == 3 || Common.step >0) {
             Common.step--;
             viewPager.setCurrentItem(Common.step);
+
             // Always enable NEXT when Step <3
             if (Common.step < 3) {
                 btn_next_step.setEnabled(true);
@@ -86,6 +88,7 @@ public class BookingActivity extends AppCompatActivity {
                     loadTimeSlotOfBarber(Common.currentBarber.getBarberId());
                 }
             }
+            // Confirm
             else if (Common.step == 3) {
                 if (Common.currentTimeSlot != -1) {
                     confirmBooking();
@@ -187,14 +190,14 @@ public class BookingActivity extends AppCompatActivity {
 
 
     private void confirmBooking() {
-        // /send broadcast to fragment step four
+        Log.d(TAG, "confirmBooking: called!!");
+        // send broadcast to fragment step four
         Intent intent = new Intent(Common.KEY_CONFIRM_BOOKING);
         mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     private void loadTimeSlotOfBarber(String barberId) {
         Log.d(TAG, "loadTimeSlotOfBarber: called!!");
-
         // Send Local Broadcast to Fragment step3
         Intent intent = new Intent(Common.KEY_DISPLAY_TIME_SLOT);
         mLocalBroadcastManager.sendBroadcast(intent);

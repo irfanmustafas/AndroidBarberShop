@@ -14,14 +14,13 @@ import ydkim2110.com.androidbarberbooking.Interface.ISumCartListener;
 public class DatabaseUtils {
 
     // Because all room handle need work on other thread
-
     public static void sumCart(CartDatabase db, ISumCartListener iSumCartListener) {
         SumCartAsync task = new SumCartAsync(db, iSumCartListener);
         task.execute();
     }
 
-    public static void getAllCart(CartDatabase db, ICartItemLoadLitener cartItemLoadLitener) {
-        GetAllCartAsync task = new GetAllCartAsync(db, cartItemLoadLitener);
+    public static void getAllCart(CartDatabase db, ICartItemLoadLitener cartItemLoadListener) {
+        GetAllCartAsync task = new GetAllCartAsync(db, cartItemLoadListener);
         task.execute();
     }
 
@@ -68,7 +67,6 @@ public class DatabaseUtils {
         }
     }
 
-
     private static class UpdateCartAsync extends AsyncTask<CartItem, Void, Void> {
 
         private final CartDatabase db;
@@ -83,7 +81,6 @@ public class DatabaseUtils {
             return null;
         }
     }
-
 
     private static class GetAllCartAsync extends AsyncTask<String, Void, List<CartItem>> {
 
