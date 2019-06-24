@@ -15,10 +15,92 @@
       },
       "oauth_client": [
         {
+          "client_id": "711008175818-t250p3i0ubsjhuurrd749k3ign679pul.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ydkim2110.com.androidbarberbooking",
+            "certificate_hash": "2b8d1e43095b52001089a1c200030e551ae092d6"
+          }
+        },
+        {
           "client_id": "711008175818-tm6a5m57or9nkpnknga5pk913trmpcm9.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "ydkim2110.com.androidbarberbooking",
+            "certificate_hash": "13a5d3024dd9c131e2f5548534c67173d18bc359"
+          }
+        },
+        {
+          "client_id": "711008175818-b531vq7g924ertlg21u99v2ljn4j8i5s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkYYR6s-ykmxPqm5gZHHTXt4ygzaRov2c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "711008175818-b531vq7g924ertlg21u99v2ljn4j8i5s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:711008175818:android:22568ab54f09e7e6",
+        "android_client_info": {
+          "package_name": "ydkim2110.com.androidbarberstaffapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "711008175818-srfbfgvl0gkh01s2bsmih9psb5b84v41.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ydkim2110.com.androidbarberstaffapp",
+            "certificate_hash": "13a5d3024dd9c131e2f5548534c67173d18bc359"
+          }
+        },
+        {
+          "client_id": "711008175818-b531vq7g924ertlg21u99v2ljn4j8i5s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkYYR6s-ykmxPqm5gZHHTXt4ygzaRov2c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "711008175818-b531vq7g924ertlg21u99v2ljn4j8i5s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:711008175818:android:2dc4cb59b7703850",
+        "android_client_info": {
+          "package_name": "ydkim2110.com.stepviewfirebaseauth"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "711008175818-s79ef19jq3e96t02onju5h12fsu1giop.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ydkim2110.com.stepviewfirebaseauth",
             "certificate_hash": "13a5d3024dd9c131e2f5548534c67173d18bc359"
           }
         },
