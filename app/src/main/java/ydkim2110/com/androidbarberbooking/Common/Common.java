@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -28,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import io.paperdb.Paper;
 import ydkim2110.com.androidbarberbooking.Model.Barber;
 import ydkim2110.com.androidbarberbooking.Model.BookingInformation;
 import ydkim2110.com.androidbarberbooking.Model.MyToken;
@@ -54,6 +56,7 @@ public class Common {
     public static final String EVENT_URI_CACHE = "URI_EVENT_SAVE";
     public static final String TITLE_KEY = "title";
     public static final String CONTENT_KEY = "content";
+    public static final String LOGGED_KEY = "UserLogged";
     public static User currentUser;
     public static Salon currentSalon;
     public static Barber currentBarber;
@@ -173,7 +176,8 @@ public class Common {
         MANAGER
     }
 
-    public static void updateToken(String token) {
+    public static void updateToken(Context context, String token) {
+
         AccessToken accessToken = AccountKit.getCurrentAccessToken();
         if (accessToken != null) {
             AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
@@ -202,6 +206,30 @@ public class Common {
 
                 }
             });
+        }
+        else {
+            Paper.init(context);
+            String user = Paper.book().read(Common.LOGGED_KEY);
+            if (user != null) {
+                if (!TextUtils.isEmpty(user)) {
+                    MyToken myToken = new MyToken();
+                    myToken.setToken(token);
+                    // Because token come from client app
+                    myToken.setTokenType(TOKEN_TYPE.CLIENT);
+                    myToken.setUserPhone(user);
+
+                    FirebaseFirestore.getInstance()
+                            .collection("Tokens")
+                            .document(user)
+                            .set(myToken)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+
+                                }
+                            });
+                }
+            }
         }
     }
 }

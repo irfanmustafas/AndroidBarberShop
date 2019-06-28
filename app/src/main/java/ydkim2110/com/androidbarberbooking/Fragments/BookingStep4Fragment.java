@@ -188,6 +188,7 @@ public class BookingStep4Fragment extends Fragment {
         calendar.add(Calendar.DATE, 0);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
+
         Timestamp todayTimestamp = new Timestamp(calendar.getTime());
 
         // Check if exist document in this collection

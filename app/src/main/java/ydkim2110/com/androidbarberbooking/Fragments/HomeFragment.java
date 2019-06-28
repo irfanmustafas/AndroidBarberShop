@@ -30,7 +30,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nex3z.notificationbadge.NotificationBadge;
@@ -262,6 +265,9 @@ public class HomeFragment extends Fragment
     IBookingInfoLoadListener mIBookingInfoLoadListener;
     IBookingInformationChangeListener mIBookingInformationChangeListener;
 
+    ListenerRegistration userBookingListener = null;
+    EventListener<QuerySnapshot> userBookingEvent = null;
+
     public HomeFragment() {
         bannerRef = FirebaseFirestore.getInstance().collection("Banner");
         lookbookRef = FirebaseFirestore.getInstance().collection("LookBook");
@@ -325,13 +331,25 @@ public class HomeFragment extends Fragment
                         mIBookingInfoLoadListener.onBookingInfoLoadFailed(e.getMessage());
                     }
                 });
+
+        // Here, after userBooking has benn assign data (collections)
+        // We will make realtime listen here
+
+        // If userBookingEvent already init
+        if (userBookingEvent != null) {
+            // Only add if userBookingListener == null
+            if (userBookingListener == null) {
+                // That mean we just add 1 time
+                userBookingListener = userBooking
+                        .addSnapshotListener(userBookingEvent);
+            }
+        }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_home, container, false);
         unbinder = ButterKnife.bind(this, view);
 
@@ -349,11 +367,33 @@ public class HomeFragment extends Fragment
             setUserInformation();
             loadBanner();
             loadLookbook();
+            // need declare above loadUserBooking();
+            initRealtimeUserBooking();
             loadUserBooking();
             countCartItem();
         }
 
         return view;
+    }
+
+    private void initRealtimeUserBooking() {
+        Log.d(TAG, "initRealtimeUserBooking: called!!");
+        // Warning: Please follow this step is carefully
+        // Because if this step you do wrong, this will make
+        // infinity loop in your app, and you will retrieve QUOTA LIMIT fom FireStore
+        // If you do wrong, FireStore will get reah limit and you need wait for next 24hours for reset
+
+        // We only init event if event is null
+        if (userBookingEvent == null) {
+            userBookingEvent = new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                    // in this event, when it fired, we will call loadUserBooking again
+                    // to reload all booking information
+                   loadUserBooking();
+                }
+            };
+        }
     }
 
     private void countCartItem() {
@@ -487,5 +527,12 @@ public class HomeFragment extends Fragment
             notification_badge.setVisibility(View.VISIBLE);
             notification_badge.setText(String.valueOf(count));
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (userBookingListener != null)
+            userBookingListener.remove();
+        super.onDestroy();
     }
 }

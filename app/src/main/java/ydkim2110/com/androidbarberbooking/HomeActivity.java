@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dmax.dialog.SpotsDialog;
+import io.paperdb.Paper;
 import ydkim2110.com.androidbarberbooking.Common.Common;
 import ydkim2110.com.androidbarberbooking.Fragments.HomeFragment;
 import ydkim2110.com.androidbarberbooking.Fragments.ShoppingFragment;
@@ -76,6 +77,10 @@ public class HomeActivity extends AppCompatActivity {
                     public void onSuccess(Account account) {
                         Log.d(TAG, "onSuccess: called!!");
                         if (account != null) {
+                            // Save userPhone by Paper
+                            Paper.init(HomeActivity.this);
+                            Paper.book().write(Common.LOGGED_KEY, account.getPhoneNumber().toString());
+
                             DocumentReference currentUser = mUserRef.document(account.getPhoneNumber().toString());
                             currentUser.get()
                                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

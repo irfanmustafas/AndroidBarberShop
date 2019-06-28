@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<InstanceIdResult> task) {
                                 if (task.isSuccessful()) {
-                                    Common.updateToken(task.getResult().getToken());
+                                    Common.updateToken(getBaseContext(), task.getResult().getToken());
 
                                     Log.d(TAG, "onComplete: TOKEN: "+task.getResult().getToken());
 
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                                         @Override
                                         public void onComplete(@NonNull Task<InstanceIdResult> task) {
                                             if (task.isSuccessful()) {
-                                                Common.updateToken(task.getResult().getToken());
+                                                Common.updateToken(getBaseContext(), task.getResult().getToken());
 
                                                 Log.d(TAG, "onComplete: TOKEN: "+task.getResult().getToken());
 
