@@ -28,6 +28,9 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -37,6 +40,7 @@ import ydkim2110.com.androidbarberbooking.Common.Common;
 import ydkim2110.com.androidbarberbooking.Common.SpaceItemDecoration;
 import ydkim2110.com.androidbarberbooking.Interface.IAllSalonLoadListener;
 import ydkim2110.com.androidbarberbooking.Interface.IBranchLoadListener;
+import ydkim2110.com.androidbarberbooking.Model.EventBus.UnableNextButton;
 import ydkim2110.com.androidbarberbooking.Model.Salon;
 import ydkim2110.com.androidbarberbooking.R;
 
@@ -44,13 +48,13 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
 
     private static final String TAG = BookingStep1Fragment.class.getSimpleName();
 
-    private LocalBroadcastManager mLocalBroadcastManager;
+    //private LocalBroadcastManager mLocalBroadcastManager;
     // Variable
-    CollectionReference allSalonRef;
-    CollectionReference branchRef;
+    private CollectionReference allSalonRef;
+    private CollectionReference branchRef;
 
-    IAllSalonLoadListener iAllSalonLoadListener;
-    IBranchLoadListener iBranchLoadListener;
+    private IAllSalonLoadListener iAllSalonLoadListener;
+    private IBranchLoadListener iBranchLoadListener;
 
     @BindView(R.id.spinner)
     MaterialSpinner spinner;
@@ -59,9 +63,9 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
     @BindView(R.id.no_item)
     TextView no_item;
 
-    Unbinder unBinder;
+    private Unbinder unBinder;
 
-    AlertDialog dialog;
+    private AlertDialog dialog;
 
     private static BookingStep1Fragment instance;
 
@@ -83,7 +87,7 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
 
         dialog = new SpotsDialog.Builder().setContext(getActivity()).build();
 
-        mLocalBroadcastManager = LocalBroadcastManager.getInstance(getContext());
+        //mLocalBroadcastManager = LocalBroadcastManager.getInstance(getContext());
     }
 
     @Nullable
@@ -152,8 +156,10 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
 
     private void makeNextBtnEnableFalse() {
         Log.d(TAG, "makeNextBtnEnableFalse: called!!");
-        Intent intent = new Intent(Common.KEY_UNABLE_BUTTON_NEXT);
-        mLocalBroadcastManager.sendBroadcast(intent);
+        //Intent intent = new Intent(Common.KEY_UNABLE_BUTTON_NEXT);
+        //mLocalBroadcastManager.sendBroadcast(intent);
+
+        EventBus.getDefault().postSticky(new UnableNextButton(true));
     }
 
     @Override

@@ -14,8 +14,12 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.greenrobot.eventbus.EventBus;
+
 import ydkim2110.com.androidbarberbooking.Common.Common;
 import ydkim2110.com.androidbarberbooking.Interface.IRecyclerItemSelectedListener;
+import ydkim2110.com.androidbarberbooking.Model.EventBus.EnableNextButton;
 import ydkim2110.com.androidbarberbooking.Model.TimeSlot;
 import ydkim2110.com.androidbarberbooking.R;
 
@@ -26,20 +30,20 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
     private Context mContext;
     private List<TimeSlot> mTimeSlotList;
     private List<CardView> mCardViewList;
-    private LocalBroadcastManager mLocalBroadcastManager;
+    //private LocalBroadcastManager mLocalBroadcastManager;
 
     public MyTimeSlotAdapter(Context context) {
         this.mContext = context;
         this.mTimeSlotList = new ArrayList<>();
         this.mCardViewList = new ArrayList<>();
-        this.mLocalBroadcastManager = LocalBroadcastManager.getInstance(context);
+        //this.mLocalBroadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
     public MyTimeSlotAdapter(Context context, List<TimeSlot> timeSlotList) {
         mContext = context;
         mTimeSlotList = timeSlotList;
         this.mCardViewList = new ArrayList<>();
-        this.mLocalBroadcastManager = LocalBroadcastManager.getInstance(context);
+        //this.mLocalBroadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
     @NonNull
@@ -55,6 +59,7 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
         holder.txt_time_slot.setText(new StringBuilder(Common.convertTimeSlotToString(position)).toString());
         // If all position is available, just show list
         if (mTimeSlotList.size() == 0) {
+            holder.card_time_slot.setEnabled(true);
             holder.card_time_slot.setCardBackgroundColor(mContext.getResources().getColor(android.R.color.white));
             holder.txt_time_slot_description.setText("Available!");
             holder.txt_time_slot_description.setTextColor(mContext.getResources().getColor(android.R.color.black));
@@ -69,12 +74,12 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
                 if (slot == position) {
                     // we will set tag for all time slot is full
                     // so base on tag, we can set all remain card background without change full time slot
+                    holder.card_time_slot.setEnabled(false);
                     holder.card_time_slot.setTag(Common.DISABLE_TAG);
                     holder.card_time_slot.setCardBackgroundColor(mContext.getResources().getColor(android.R.color.darker_gray));
                     holder.txt_time_slot_description.setText("Full");
                     holder.txt_time_slot_description.setTextColor(mContext.getResources().getColor(android.R.color.black));
                     holder.txt_time_slot.setTextColor(mContext.getResources().getColor(android.R.color.black));
-                    holder.card_time_slot.setClickable(false);
                 }
             }
         }
@@ -103,12 +108,17 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
                             .getColor(android.R.color.holo_orange_dark));
 
                     // After that, send broadcast to enable button next
-                    Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
+//                    Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
                     // Put index of time slot we have selected
-                    intent.putExtra(Common.KEY_TIME_SLOT, position);
+//                    intent.putExtra(Common.KEY_TIME_SLOT, position);
                     // Go to step3
-                    intent.putExtra(Common.KEY_STEP, 3);
-                    mLocalBroadcastManager.sendBroadcast(intent);
+//                    intent.putExtra(Common.KEY_STEP, 3);
+//                    mLocalBroadcastManager.sendBroadcast(intent);
+
+                    // EventBus
+                    EventBus.getDefault().postSticky(new EnableNextButton(3, position));
+
+
                 }
             });
         }

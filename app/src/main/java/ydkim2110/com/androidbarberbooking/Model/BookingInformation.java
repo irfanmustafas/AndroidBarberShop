@@ -2,11 +2,17 @@ package ydkim2110.com.androidbarberbooking.Model;
 
 import com.google.firebase.Timestamp;
 
+import java.util.List;
+
+import ydkim2110.com.androidbarberbooking.Database.CartItem;
+
 public class BookingInformation {
     private String cityBook, customerName, customerPhone, time, barberId, barberName, salonId, salonName, salonAddress;
     private Long slot;
     private Timestamp timestamp;
-    private Boolean done;
+    private boolean done;
+    private List<CartItem> cartItemList;
+
 
     public BookingInformation() {
     }
@@ -106,11 +112,11 @@ public class BookingInformation {
         this.timestamp = timestamp;
     }
 
-    public Boolean getDone() {
+    public boolean isDone() {
         return done;
     }
 
-    public void setDone(Boolean done) {
+    public void setDone(boolean done) {
         this.done = done;
     }
 
@@ -120,5 +126,13 @@ public class BookingInformation {
 
     public void setCityBook(String cityBook) {
         this.cityBook = cityBook;
+    }
+
+    public List<CartItem> getCartItemList() {
+        return cartItemList;
+    }
+
+    public void setCartItemList(List<CartItem> cartItemList) {
+        this.cartItemList = cartItemList;
     }
 }

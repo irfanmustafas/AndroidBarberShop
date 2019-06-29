@@ -1,18 +1,25 @@
 package ydkim2110.com.androidbarberbooking.Common;
 
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatRatingBar;
 import androidx.core.app.NotificationCompat;
 
 import com.facebook.accountkit.AccessToken;
@@ -21,15 +28,21 @@ import com.facebook.accountkit.AccountKit;
 import com.facebook.accountkit.AccountKitCallback;
 import com.facebook.accountkit.AccountKitError;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.paperdb.Paper;
+import ydkim2110.com.androidbarberbooking.HomeActivity;
 import ydkim2110.com.androidbarberbooking.Model.Barber;
 import ydkim2110.com.androidbarberbooking.Model.BookingInformation;
 import ydkim2110.com.androidbarberbooking.Model.MyToken;
@@ -57,6 +70,13 @@ public class Common {
     public static final String TITLE_KEY = "title";
     public static final String CONTENT_KEY = "content";
     public static final String LOGGED_KEY = "UserLogged";
+    public static final String RATING_INFORMATION_KEY = "RATING_INFORMATION";
+
+    public static final String RATING_STATE_KEY = "RATING_STATE";
+    public static final String RATING_SALON_ID = "RATING_SALON_ID";
+    public static final String RATING_SALON_NAME = "RATING_SALON_NAME";
+    public static final String RATING_BARBER_ID = "RATING_BARBER_ID";
+
     public static User currentUser;
     public static Salon currentSalon;
     public static Barber currentBarber;
@@ -168,6 +188,117 @@ public class Common {
         Notification notification = builder.build();
 
         notificationManager.notify(noti_id, notification);
+    }
+
+    public static void showRatingDialog(Context context, String stateName, String salonID,
+                                        String salonName, String barberId) {
+        Log.d(TAG, "showRatingDialog: called!!");
+        // First, we need get DocumentReference of Barber
+        DocumentReference barberNeedRateRef = FirebaseFirestore.getInstance()
+                .collection("AllSalon")
+                .document(stateName)
+                .collection("Branch")
+                .document(salonID)
+                .collection("Barber")
+                .document(barberId);
+
+        barberNeedRateRef.get()
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: "+e.getMessage());
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        Log.d(TAG, "onComplete: called!!");
+                        if (task.isSuccessful()) {
+                            Barber barberRate = task.getResult().toObject(Barber.class);
+                            barberRate.setBarberId(task.getResult().getId());
+
+                            // Create View for dialog
+                            View view = LayoutInflater.from(context)
+                                    .inflate(R.layout.layout_rating_dialog, null);
+
+                            // Widget
+                            TextView txt_salon_name = view.findViewById(R.id.txt_salon_name);
+                            TextView txt_barber_name = view.findViewById(R.id.txt_barber_name);
+                            AppCompatRatingBar ratingBar = view.findViewById(R.id.rating);
+
+                            // Set Info
+                            txt_salon_name.setText(salonName);
+                            txt_barber_name.setText(barberRate.getName());
+
+                            // Create Dialog
+                            AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                                    .setView(view)
+                                    .setCancelable(false)
+                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // IF select OK, we will update
+                                            // rating information to FireStore
+
+                                            Double original_rating = barberRate.getRating();
+                                            Long ratingTimes = barberRate.getRatingTimes();
+                                            float userRating = ratingBar.getRating();
+
+                                            Double finalRating = (original_rating+userRating);
+
+                                            // Update barber
+                                            Map<String, Object> data_update = new HashMap<>();
+                                            data_update.put("rating", finalRating);
+                                            // ++ratingTimes, not (ratingTimes+1) or (ratingTimes++)
+                                            // because we need INCREASE FIRST AND USE
+                                            data_update.put("ratingTimes", ++ratingTimes);
+                                            
+                                            barberNeedRateRef.update(data_update)
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    })
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if (task.isSuccessful()) {
+                                                                Toast.makeText(context, "Thank you for rating!", Toast.LENGTH_SHORT).show();
+                                                                // Remove Key
+                                                                Paper.init(context);
+                                                                Paper.book().delete(Common.RATING_INFORMATION_KEY);
+                                                            }
+                                                        }
+                                                    });
+                                        }
+                                    })
+                                    .setNegativeButton("SKIP", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // If select Skip, we just dismiss dialog
+                                            dialog.dismiss();
+                                        }
+                                    })
+                                    .setNeutralButton("NEVER", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // If select Never,
+                                            // That mean no rating, we will delete key
+                                            Paper.init(context);
+                                            Paper.book().delete(Common.RATING_INFORMATION_KEY);
+
+                                        }
+                                    });
+
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+                        }
+                    }
+                });
+
+
     }
 
     public static enum TOKEN_TYPE {

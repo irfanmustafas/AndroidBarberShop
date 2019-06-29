@@ -71,6 +71,15 @@ public class MyCartAdapter extends RecyclerView.Adapter<MyCartAdapter.MyViewHold
                                         .getProductQuantity()-1);
 
                         DatabaseUtils.updateCart(mCartDatabase, mCartItemList.get(position));
+
+                        holder.txt_quantity.setText(
+                                new StringBuilder(String.valueOf(mCartItemList.get(position).getProductQuantity()))
+                        );
+                    }
+                    else if (mCartItemList.get(position).getProductQuantity() == 0) {
+                        DatabaseUtils.deleteCart(mCartDatabase, mCartItemList.get(position));
+                        mCartItemList.remove(position);
+                        notifyItemRemoved(position);
                     }
                 } else {
                     if (mCartItemList.get(position).getProductQuantity() < 99) {
@@ -81,9 +90,7 @@ public class MyCartAdapter extends RecyclerView.Adapter<MyCartAdapter.MyViewHold
                         DatabaseUtils.updateCart(mCartDatabase, mCartItemList.get(position));
                     }
                 }
-                holder.txt_quantity.setText(
-                        new StringBuilder(String.valueOf(mCartItemList.get(position).getProductQuantity()))
-                );
+
                 mICartItemUpdateListener.onCartItemUpdateSuccess();
             }
         });

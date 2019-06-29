@@ -15,6 +15,7 @@ import ydkim2110.com.androidbarberbooking.Model.User;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +37,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -49,6 +54,30 @@ public class HomeActivity extends AppCompatActivity {
     CollectionReference mUserRef;
 
     AlertDialog mAlertDialog;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // we will check key from Paper and if available, we will show rating dialog
+        // Check rating dialog
+        checkRatingDialog();
+    }
+
+    private void checkRatingDialog() {
+        Paper.init(this);
+        String dataSerialized = Paper.book().read(Common.RATING_INFORMATION_KEY, "");
+        if (!TextUtils.isEmpty(dataSerialized)) {
+            Map<String, String> dataReceived = new Gson()
+                    .fromJson(dataSerialized, new TypeToken<Map<String, String>>(){}.getType());
+            if (dataReceived != null) {
+                Common.showRatingDialog(HomeActivity.this,
+                        dataReceived.get(Common.RATING_STATE_KEY),
+                        dataReceived.get(Common.RATING_SALON_ID),
+                        dataReceived.get(Common.RATING_SALON_NAME),
+                        dataReceived.get(Common.RATING_BARBER_ID));
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,9 +126,11 @@ public class HomeActivity extends AppCompatActivity {
                                                     Common.currentUser = userSnapshot.toObject(User.class);
                                                     mBottomNavigationView.setSelectedItemId(R.id.action_home);
                                                 }
+
                                                 if (mAlertDialog.isShowing()) {
                                                     mAlertDialog.dismiss();
                                                 }
+
                                             }
                                         }
                                     });

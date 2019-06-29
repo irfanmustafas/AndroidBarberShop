@@ -14,8 +14,12 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.greenrobot.eventbus.EventBus;
+
 import ydkim2110.com.androidbarberbooking.Common.Common;
 import ydkim2110.com.androidbarberbooking.Interface.IRecyclerItemSelectedListener;
+import ydkim2110.com.androidbarberbooking.Model.EventBus.EnableNextButton;
 import ydkim2110.com.androidbarberbooking.Model.Salon;
 import ydkim2110.com.androidbarberbooking.R;
 
@@ -24,13 +28,13 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
     private Context mContext;
     private List<Salon> salonList;
     private List<CardView> cardViewList;
-    private LocalBroadcastManager mLocalBroadcastManager;
+    //private LocalBroadcastManager mLocalBroadcastManager;
 
     public MySalonAdapter(Context context, List<Salon> salonList) {
         mContext = context;
         this.salonList = salonList;
         cardViewList = new ArrayList<>();
-        mLocalBroadcastManager = LocalBroadcastManager.getInstance(context);
+        //mLocalBroadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
     @NonNull
@@ -65,14 +69,17 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
                         .getColor(android.R.color.holo_orange_dark));
 
                 // Send Broadcast to tell Booking Activity enable Button next
-                Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
+//                Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
                 // We need send Salon Object to intent, so we must implement Parcelable for Salon Object
                 // And we need add more property "salonId" to select all barber of this salon
                 // Because we just add 'salonId', so we need set it when user load all salon
                 // salonId is just our property, so it can't be parse from Firestore, need set it by manually
-                intent.putExtra(Common.KEY_STEP, 1);
-                intent.putExtra(Common.KEY_SALON_STORE, salonList.get(position));
-                mLocalBroadcastManager.sendBroadcast(intent);
+//                intent.putExtra(Common.KEY_STEP, 1);
+//                intent.putExtra(Common.KEY_SALON_STORE, salonList.get(position));
+//                mLocalBroadcastManager.sendBroadcast(intent);
+
+                // EventBus
+                EventBus.getDefault().postSticky(new EnableNextButton(1, salonList.get(position)));
             }
         });
     }

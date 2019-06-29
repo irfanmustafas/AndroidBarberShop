@@ -37,11 +37,12 @@
             android:layout_height="wrap_content" />
 
         <Button
-            android:id="@+id/btn_submit_cart"
-            android:text="PLACE"
+            android:id="@+id/btn_clear_cart"
+            android:text="CLEAR"
             android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
     </RelativeLayout>
 
 </RelativeLayout>

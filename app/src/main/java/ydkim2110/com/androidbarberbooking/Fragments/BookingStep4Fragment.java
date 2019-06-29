@@ -20,6 +20,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,37 +33,40 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.ServerTimestamp;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import dmax.dialog.SpotsDialog;
 import io.paperdb.Paper;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import ydkim2110.com.androidbarberbooking.Common.Common;
+import ydkim2110.com.androidbarberbooking.Database.CartDatabase;
+import ydkim2110.com.androidbarberbooking.Database.CartItem;
+import ydkim2110.com.androidbarberbooking.Database.DatabaseUtils;
+import ydkim2110.com.androidbarberbooking.Interface.ICartItemLoadLitener;
 import ydkim2110.com.androidbarberbooking.Model.BookingInformation;
+import ydkim2110.com.androidbarberbooking.Model.EventBus.ConfirmBookingEvent;
 import ydkim2110.com.androidbarberbooking.Model.FCMResponse;
 import ydkim2110.com.androidbarberbooking.Model.FCMSendData;
 import ydkim2110.com.androidbarberbooking.Model.MyNotification;
@@ -67,7 +75,7 @@ import ydkim2110.com.androidbarberbooking.R;
 import ydkim2110.com.androidbarberbooking.Retrofit.IFCMApi;
 import ydkim2110.com.androidbarberbooking.Retrofit.RetrofitClient;
 
-public class BookingStep4Fragment extends Fragment {
+public class BookingStep4Fragment extends Fragment implements ICartItemLoadLitener {
 
     private static final String TAG = BookingStep4Fragment.class.getSimpleName();
 
@@ -81,7 +89,7 @@ public class BookingStep4Fragment extends Fragment {
     }
 
     private SimpleDateFormat mSimpleDateFormat;
-    private LocalBroadcastManager mLocalBroadcastManager;
+    //private LocalBroadcastManager mLocalBroadcastManager;
 
     private AlertDialog mDialog;
 
@@ -107,71 +115,7 @@ public class BookingStep4Fragment extends Fragment {
     void confirmBooking() {
         mDialog.show();
 
-        // Process TimeStamp
-        // We will use TimeStamp to filter all booking with date is greater today
-        // For only display all future booking
-        String startTime = Common.convertTimeSlotToString(Common.currentTimeSlot);
-        String[] convertTime = startTime.split("~");
-
-        String[] startTimeConvert = convertTime[0].split(":");
-        int startHourInt = Integer.parseInt(startTimeConvert[0].trim());
-        int startMinInt = Integer.parseInt(startTimeConvert[1].trim());
-
-        Calendar bookingDateWithoutHours = Calendar.getInstance();
-        bookingDateWithoutHours.setTimeInMillis(Common.bookingDate.getTimeInMillis());
-        bookingDateWithoutHours.set(Calendar.HOUR_OF_DAY, startHourInt);
-        bookingDateWithoutHours.set(Calendar.MINUTE, startMinInt);
-
-        // Create timestamp object and apply to BookingInformation
-        Timestamp timestamp = new Timestamp(bookingDateWithoutHours.getTime());
-
-        // creating booking information
-        BookingInformation bookingInformation = new BookingInformation();
-
-        bookingInformation.setCityBook(Common.city);
-        bookingInformation.setTimestamp(timestamp);
-        // Always false, because we will use this field to filter for display
-        bookingInformation.setDone(false);
-        bookingInformation.setBarberId(Common.currentBarber.getBarberId());
-        bookingInformation.setBarberName(Common.currentBarber.getName());
-        bookingInformation.setCustomerName(Common.currentUser.getName());
-        bookingInformation.setCustomerPhone(Common.currentUser.getPhoneNumber());
-        bookingInformation.setSalonId(Common.currentSalon.getSalonId());
-        bookingInformation.setSalonAddress(Common.currentSalon.getAddress());
-        bookingInformation.setSalonName(Common.currentSalon.getName());
-        bookingInformation.setTime(new StringBuilder(Common.convertTimeSlotToString(Common.currentTimeSlot))
-                .append(" at ")
-                .append(mSimpleDateFormat.format(bookingDateWithoutHours.getTime())).toString());
-        bookingInformation.setSlot(Long.valueOf(Common.currentTimeSlot));
-
-        // submit barber document
-        DocumentReference bookingDate = FirebaseFirestore.getInstance()
-                .collection("AllSalon")
-                .document(Common.city)
-                .collection("Branch")
-                .document(Common.currentSalon.getSalonId())
-                .collection("Barber")
-                .document(Common.currentBarber.getBarberId())
-                .collection(Common.simpleFormatDate.format(Common.bookingDate.getTime()))
-                .document(String.valueOf(Common.currentTimeSlot));
-
-        // write data
-        bookingDate.set(bookingInformation)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Here we can write an function to check
-                        // If already exist an booking, we will prevent new booking
-                        addToUserBooking(bookingInformation);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(), ""+e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+        DatabaseUtils.getAllCart(CartDatabase.getInstance(getContext()), this);
     }
 
     private void addToUserBooking(BookingInformation bookingInformation) {
@@ -433,13 +377,39 @@ public class BookingStep4Fragment extends Fragment {
 
     Unbinder mUnbinder;
 
-    BroadcastReceiver confirmBookingReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive: called!!");
+//    BroadcastReceiver confirmBookingReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            Log.d(TAG, "onReceive: called!!");
+//            setData();
+//        }
+//    };
+
+    /**
+     * Event Bus
+     * @since : 2019-06-29 오전 9:00
+    **/
+    //=============================================================================
+    // EventBus start
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void setDataBooking(ConfirmBookingEvent event) {
+        if (event.isConfirm()) {
             setData();
         }
-    };
+    }
+    //=============================================================================
 
     private void setData() {
         Log.d(TAG, "setData: called!!");
@@ -465,15 +435,15 @@ public class BookingStep4Fragment extends Fragment {
         // Ally format for date display on confirm
         mSimpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-        mLocalBroadcastManager = LocalBroadcastManager.getInstance(getContext());
-        mLocalBroadcastManager.registerReceiver(confirmBookingReceiver, new IntentFilter(Common.KEY_CONFIRM_BOOKING));
+        //mLocalBroadcastManager = LocalBroadcastManager.getInstance(getContext());
+        //mLocalBroadcastManager.registerReceiver(confirmBookingReceiver, new IntentFilter(Common.KEY_CONFIRM_BOOKING));
 
         mDialog = new SpotsDialog.Builder().setContext(getContext()).setCancelable(false).build();
     }
 
     @Override
     public void onDestroy() {
-        mLocalBroadcastManager.unregisterReceiver(confirmBookingReceiver);
+        //mLocalBroadcastManager.unregisterReceiver(confirmBookingReceiver);
         mCompositeDisposable.clear();
         super.onDestroy();
     }
@@ -488,4 +458,80 @@ public class BookingStep4Fragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onGetAllItemFromCartSuccess(List<CartItem> cartItemList) {
+        Log.d(TAG, "onGetAllItemFromCartSuccess: called!!");
+        // we wil have all item on cart
+
+        // Process TimeStamp
+        // We will use TimeStamp to filter all booking with date is greater today
+        // For only display all future booking
+        String startTime = Common.convertTimeSlotToString(Common.currentTimeSlot);
+        String[] convertTime = startTime.split("~");
+
+        String[] startTimeConvert = convertTime[0].split(":");
+        int startHourInt = Integer.parseInt(startTimeConvert[0].trim());
+        int startMinInt = Integer.parseInt(startTimeConvert[1].trim());
+
+        Calendar bookingDateWithoutHours = Calendar.getInstance();
+        bookingDateWithoutHours.setTimeInMillis(Common.bookingDate.getTimeInMillis());
+        bookingDateWithoutHours.set(Calendar.HOUR_OF_DAY, startHourInt);
+        bookingDateWithoutHours.set(Calendar.MINUTE, startMinInt);
+
+        // Create timestamp object and apply to BookingInformation
+        Timestamp timestamp = new Timestamp(bookingDateWithoutHours.getTime());
+
+        // creating booking information
+        BookingInformation bookingInformation = new BookingInformation();
+
+        bookingInformation.setCityBook(Common.city);
+        bookingInformation.setTimestamp(timestamp);
+        // Always false, because we will use this field to filter for display
+        bookingInformation.setDone(false);
+        bookingInformation.setBarberId(Common.currentBarber.getBarberId());
+        bookingInformation.setBarberName(Common.currentBarber.getName());
+        bookingInformation.setCustomerName(Common.currentUser.getName());
+        bookingInformation.setCustomerPhone(Common.currentUser.getPhoneNumber());
+        bookingInformation.setSalonId(Common.currentSalon.getSalonId());
+        bookingInformation.setSalonAddress(Common.currentSalon.getAddress());
+        bookingInformation.setSalonName(Common.currentSalon.getName());
+        bookingInformation.setTime(new StringBuilder(Common.convertTimeSlotToString(Common.currentTimeSlot))
+                .append(" at ")
+                .append(mSimpleDateFormat.format(bookingDateWithoutHours.getTime())).toString());
+        bookingInformation.setSlot(Long.valueOf(Common.currentTimeSlot));
+        // Add cart item list to booking information
+        bookingInformation.setCartItemList(cartItemList);
+
+        // submit barber document
+        DocumentReference bookingDate = FirebaseFirestore.getInstance()
+                .collection("AllSalon")
+                .document(Common.city)
+                .collection("Branch")
+                .document(Common.currentSalon.getSalonId())
+                .collection("Barber")
+                .document(Common.currentBarber.getBarberId())
+                .collection(Common.simpleFormatDate.format(Common.bookingDate.getTime()))
+                .document(String.valueOf(Common.currentTimeSlot));
+
+        // write data
+        bookingDate.set(bookingInformation)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // Here we can write an function to check
+                        // If already exist an booking, we will prevent new booking
+
+                        // After add success booking information, just clear cart
+                        DatabaseUtils.clearCart(CartDatabase.getInstance(getContext()));
+                        addToUserBooking(bookingInformation);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(), ""+e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 }

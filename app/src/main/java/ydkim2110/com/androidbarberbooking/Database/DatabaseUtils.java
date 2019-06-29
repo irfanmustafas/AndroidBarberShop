@@ -4,6 +4,8 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
 import ydkim2110.com.androidbarberbooking.Common.Common;
@@ -36,6 +38,16 @@ public class DatabaseUtils {
 
     public static void countItemInCart(CartDatabase db, ICountItemInCartListener iCountItemInCartListener) {
         CountItemInCartAsync task = new CountItemInCartAsync(db, iCountItemInCartListener);
+        task.execute();
+    }
+
+    public static void deleteCart(@NonNull final CartDatabase db, CartItem cartItem) {
+        DeleteCartAsync task = new DeleteCartAsync(db);
+        task.execute(cartItem);
+    }
+
+    public static void clearCart(CartDatabase db) {
+        ClearCartAsync task = new ClearCartAsync(db);
         task.execute();
     }
 
@@ -158,5 +170,38 @@ public class DatabaseUtils {
         }
     }
 
+    private static class DeleteCartAsync extends AsyncTask<CartItem, Void, Void> {
 
+        private final CartDatabase db;
+
+        public DeleteCartAsync(CartDatabase db) {
+            this.db = db;
+        }
+
+        @Override
+        protected Void doInBackground(CartItem... cartItems) {
+            db.cartDao().delete(cartItems[0]);
+            return null;
+        }
+    }
+
+    private static class ClearCartAsync extends AsyncTask<Void, Void, Void> {
+
+        private final CartDatabase db;
+
+        public ClearCartAsync(CartDatabase db) {
+            this.db = db;
+        }
+
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            clearAllItemFromCart(db);
+            return null;
+        }
+
+        private void clearAllItemFromCart(CartDatabase db) {
+            db.cartDao().clearCart(Common.currentUser.getPhoneNumber());
+        }
+    }
 }

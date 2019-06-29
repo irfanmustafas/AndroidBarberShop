@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import ydkim2110.com.androidbarberbooking.Adapter.MyCartAdapter;
 import ydkim2110.com.androidbarberbooking.Database.CartDatabase;
 import ydkim2110.com.androidbarberbooking.Database.CartItem;
@@ -29,8 +30,16 @@ public class CartActivity extends AppCompatActivity implements ICartItemLoadLite
     RecyclerView recycler_cart;
     @BindView(R.id.txt_total_price)
     TextView txt_total_price;
-    @BindView(R.id.btn_submit_cart)
-    Button btn_submit_cart;
+    @BindView(R.id.btn_clear_cart)
+    Button btn_clear_cart;
+
+    @OnClick(R.id.btn_clear_cart)
+    void clearCart() {
+        DatabaseUtils.clearCart(mCartDatabase);
+
+        // Update Adapter
+        DatabaseUtils.getAllCart(mCartDatabase, this);
+    }
 
     private CartDatabase mCartDatabase;
 

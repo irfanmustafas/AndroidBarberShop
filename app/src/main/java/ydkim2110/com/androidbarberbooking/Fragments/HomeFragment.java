@@ -58,6 +58,7 @@ import ydkim2110.com.androidbarberbooking.CartActivity;
 import ydkim2110.com.androidbarberbooking.Common.Common;
 import ydkim2110.com.androidbarberbooking.Database.CartDatabase;
 import ydkim2110.com.androidbarberbooking.Database.DatabaseUtils;
+import ydkim2110.com.androidbarberbooking.HistoryActivity;
 import ydkim2110.com.androidbarberbooking.Interface.IBannerLoadListener;
 import ydkim2110.com.androidbarberbooking.Interface.IBookingInfoLoadListener;
 import ydkim2110.com.androidbarberbooking.Interface.IBookingInformationChangeListener;
@@ -129,6 +130,11 @@ public class HomeFragment extends Fragment
     @OnClick(R.id.card_view_cart)
     void openCartActivity() {
         startActivity(new Intent(getActivity(), CartActivity.class));
+    }
+
+    @OnClick(R.id.card_view_history)
+    void openHistoryActivity() {
+        startActivity(new Intent(getActivity(), HistoryActivity.class));
     }
 
     private void changeBookingFromUser() {
